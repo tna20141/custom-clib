@@ -1,0 +1,3 @@
+The utilities that this library provides:
+
+- linked list implementation
