@@ -137,5 +137,31 @@ TEST(ListHeadTest, Macros) {
 	}
 
 	// test list_prepare_entry, list_for_each_entry_continue, list_for_each_entry_from
-	
+	epos = NULL;
+	epos = list_prepare_entry(epos, &l, ptrs);
+	list_for_each_entry_continue(epos, &l, ptrs) {
+		i++;
+		EXPECT_EQ(i, epos->num);
+		if (i == 3) break;
+	}
+	epos = list_prepare_entry(epos, &l, ptrs);
+	list_for_each_entry_continue(epos, &l, ptrs) {
+		i++;
+		EXPECT_EQ(i, epos->num);
+	}
+
+	epos = NULL;
+	i = 0;
+	epos = list_prepare_entry(epos, &l, ptrs);
+	list_for_each_entry_continue(epos, &l, ptrs) {
+		i++;
+		EXPECT_EQ(i, epos->num);
+		if (i == 2) break;
+	}
+	epos = list_prepare_entry(epos, &l, ptrs);
+	i--;
+	list_for_each_entry_from(epos, &l, ptrs) {
+		i++;
+		EXPECT_EQ(i, epos->num);
+	}
 }
