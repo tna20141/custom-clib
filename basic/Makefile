@@ -19,6 +19,9 @@ CC = gcc
 # Remember to tweak this if you move this file.
 GTEST_DIR = ../gtest-1.7.0
 
+# Where to find headers.
+INC_DIR = ./include
+
 # Where to find user code.
 USER_DIR = ./src
 
@@ -81,7 +84,7 @@ $(BIN_DIR)/gtest_main.a : $(BIN_DIR)/gtest-all.o $(BIN_DIR)/gtest_main.o
 # function.
 
 $(BIN_DIR)/basic_test.o : $(TEST_DIR)/basic_test.cpp $(USER_DIR)/list.h $(USER_DIR)/utils.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) -I$(USER_DIR) $(CXXFLAGS) -c $(TEST_DIR)/basic_test.cpp \
+	$(CXX) $(CPPFLAGS) -I $(USER_DIR) -I $(INC_DIR) $(CXXFLAGS) -c $(TEST_DIR)/basic_test.cpp \
 		-o $@
 
 $(BIN_DIR)/basic_test : $(BIN_DIR)/basic_test.o $(BIN_DIR)/gtest_main.a

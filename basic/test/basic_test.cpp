@@ -2,6 +2,10 @@
 #include "list.h"
 #include "gtest/gtest.h"
 
+/*
+ * Test for basic features of custom c library
+ */
+
 #define BUILD_LIST(l)	\
 	LIST_HEAD(l);	\
 	struct entry entry2;	\

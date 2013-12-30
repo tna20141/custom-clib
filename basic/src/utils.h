@@ -1,5 +1,5 @@
-#ifndef _CUSTOM_CLIB_UTILS_H
-#define _CUSTOM_CLIB_UTILS_H
+#ifndef _CUSTOM_CLIB_BASIC_UTILS_H
+#define _CUSTOM_CLIB_BASIC_UTILS_H
 
 /**
  * offsetof - determine the location offset of a member in a struct
@@ -19,9 +19,5 @@
 #define container_of(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
 	(type *)( (char *)__mptr - offsetof(type,member) );})
-
-#ifndef NULL
-#define NULL 0
-#endif
 
 #endif
