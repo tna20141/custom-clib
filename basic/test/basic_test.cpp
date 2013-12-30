@@ -169,3 +169,5 @@ TEST(ListHeadTest, Macros) {
 		EXPECT_EQ(i, epos->num);
 	}
 }
+
+#undef BUILD_LIST
