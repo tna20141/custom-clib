@@ -225,6 +225,22 @@ static inline void list_rotate_left(struct list_head *head)
 }
 
 /**
+ * list_rotate_right - rotate the list to the right
+ * @head: the head of the list
+ *
+ * added by me, since it doesn't feel right with list_rotate_left alone
+ */
+static inline void list_rotate_right(struct list_head *head)
+{
+	struct list_head *last;
+
+	if (!list_empty(head)) {
+		last = head->prev;
+		list_move(last, head);
+	}
+}
+
+/**
  * list_is_singular - tests whether a list has just one entry.
  * @head: the list to test.
  */
@@ -247,7 +263,7 @@ static inline void __list_cut_position(struct list_head *list,
 
 /**
  * list_cut_position - cut a list into two
- * @list: a neww list to add all removed entries
+ * @list: a new list to add all removed entries
  * @head: a list with entries
  * @entry: an entry within head, could be the head itself
  *	and if so we won't cut the list
@@ -289,7 +305,7 @@ static inline void __list_splice(const struct list_head *list,
 
 /**
  * list_splice - join two lists, this is designed for stacks
- * @list: the neww list to add.
+ * @list: the new list to add.
  * @head: the place to add it in the first list.
  */
 static inline void list_splice(const struct list_head *list,
@@ -301,7 +317,7 @@ static inline void list_splice(const struct list_head *list,
 
 /**
  * list_splice_tail - join two lists, each list being a queue
- * @list: the neww list to add.
+ * @list: the new list to add.
  * @head: the place to add it in the first list.
  */
 static inline void list_splice_tail(struct list_head *list,
@@ -313,7 +329,7 @@ static inline void list_splice_tail(struct list_head *list,
 
 /**
  * list_splice_init - join two lists and reinitialise the emptied list.
- * @list: the neww list to add.
+ * @list: the new list to add.
  * @head: the place to add it in the first list.
  *
  * The list at @list is reinitialised

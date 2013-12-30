@@ -62,31 +62,30 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # implementation details, the dependencies specified below are
 # conservative and not optimized.  This is fine as Google Test
 # compiles fast and for ordinary users its source rarely changes.
-gtest-all.o : $(GTEST_SRCS_)
+$(BIN_DIR)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest-all.cc -o $(BIN_DIR)/$@
+            $(GTEST_DIR)/src/gtest-all.cc -o $@
 
-gtest_main.o : $(GTEST_SRCS_)
+$(BIN_DIR)/gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest_main.cc -o $(BIN_DIR)/$@
+            $(GTEST_DIR)/src/gtest_main.cc -o $@
 
-gtest.a : gtest-all.o
-	$(AR) $(ARFLAGS) $(BIN_DIR)/$@ $^
+$(BIN_DIR)/gtest.a : $(BIN_DIR)/gtest-all.o
+	$(AR) $(ARFLAGS) $@ $^
 
-gtest_main.a : gtest-all.o gtest_main.o
-	cd $(BIN_DIR) && $(AR) $(ARFLAGS) $@ $^
+$(BIN_DIR)/gtest_main.a : $(BIN_DIR)/gtest-all.o $(BIN_DIR)/gtest_main.o
+	$(AR) $(ARFLAGS) $@ $^
 
 # Builds a sample test.  A test should link with either gtest.a or
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-list.o : $(USER_DIR)/list.h $(USER_DIR)/utils.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/list.h -o $(BIN_DIR)/$@
-
-basic_test.o : $(TEST_DIR)/basic_test.cpp $(USER_DIR)/list.h $(GTEST_HEADERS)
+$(BIN_DIR)/basic_test.o : $(TEST_DIR)/basic_test.cpp $(USER_DIR)/list.h $(USER_DIR)/utils.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I$(USER_DIR) $(CXXFLAGS) -c $(TEST_DIR)/basic_test.cpp \
-		-o $(BIN_DIR)/$@
+		-o $@
 
-basic_test : basic_test.o gtest_main.a
-	cd $(BIN_DIR) && $(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+$(BIN_DIR)/basic_test : $(BIN_DIR)/basic_test.o $(BIN_DIR)/gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+basic_test: $(BIN_DIR)/basic_test
 	$(BIN_DIR)/$@
