@@ -1,0 +1,11 @@
+# 1 "ctest.c"
+# 1 "<command-line>"
+# 1 "ctest.c"
+# 1 "cloak.h" 1
+# 2 "ctest.c" 2
+# 29 "ctest.c"
+1 G ()
+1 1 G ()
+1 G ()
+
+1

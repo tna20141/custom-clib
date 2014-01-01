@@ -1,0 +1,13 @@
+# 1 "ctest.c"
+# 1 "<command-line>"
+# 1 "ctest.c"
+# 1 "../src/cloak_template.h" 1
+# 2 "ctest.c" 2
+# 50 "ctest.c"
+"1,2"
+"1 , 2 ,3"
+
+
+
+
+, 2 , 3 , 4 , 5
