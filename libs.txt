@@ -1,0 +1,43 @@
+CUSTOM CLIB
+===========
+
+The list of C libraries contained in this module includes:
+
+
+Basic
+-----
+In-directory: yes
+Features:
+	- Linked list
+
+Google Test
+-----------
+URL: http://code.google.com/p/googletest/
+In-directory: yes
+Features:
+	- Write unit test for C/C++
+Note:
+	- Written in C++
+
+Cloak
+-----
+URL: https://github.com/pfultz2/Cloak
+In-directory: yes
+Features:
+	- Provide macros for loops and some other utilities
+
+GSL
+---
+URL: http://www.gnu.org/software/gsl/
+In-directory: no
+Features:
+	- See URL for a complete list
+	- Main features include math subjects, sorting, physical constants
+
+GLIBC
+-----
+URL: http://www.gnu.org/software/libc/
+In-directory: no
+Features:
+	- Standard, general-purpose C library
+Note: pre-installed in most Linux systems
