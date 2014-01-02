@@ -41,3 +41,54 @@ In-directory: no
 Features:
 	- Standard, general-purpose C library
 Note: pre-installed in most Linux systems
+
+CURL
+----
+URL: http://curl.haxx.se/
+In-directory: no
+Features:
+	- Networking that uses URL (HTTP, HTTPS, FTP, SCP...)
+
+PCRE
+----
+URL: http://www.pcre.org/
+In-directory: no
+Features:
+	- Implement Perl compatible regular expression
+
+Pthread
+-------
+URL: none
+In-directory: no
+Features:
+	- Multi-threading library
+Notes:
+	- Preinstalled in most Linux systems, but need to be linked manually
+
+Libavl
+------
+URL: http://adtinfo.org/
+In-directory: no
+Features:
+	- Binary tree, balanced tree implementation
+
+OpenMPI
+-------
+URL: http://www.open-mpi.org/
+In-directory: no
+Features:
+	- Message passing interface library (or interprocess communication)
+
+GLib
+----
+URL: https://developer.gnome.org/glib/
+In-directory: no
+Features:
+	- General purpose libraries (lots of stuff in here)
+
+Libxml2
+-------
+URL: http://www.xmlsoft.org/
+In-directory: no
+Features:
+	- XML Parser and toolkit
