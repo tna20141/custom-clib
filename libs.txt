@@ -92,3 +92,10 @@ URL: http://www.xmlsoft.org/
 In-directory: no
 Features:
 	- XML Parser and toolkit
+
+Libgcrypt
+---------
+URL: http://www.gnu.org/software/libgcrypt/
+In-directory: no
+Features:
+	- Cryptographic function library
