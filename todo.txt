@@ -1,2 +1,1 @@
-2013-12-28:
-find library for sorting
+gsl, curl, pcre

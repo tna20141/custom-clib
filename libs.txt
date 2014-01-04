@@ -99,3 +99,14 @@ URL: http://www.gnu.org/software/libgcrypt/
 In-directory: no
 Features:
 	- Cryptographic function library
+
+Log4c
+-----
+URL: http://log4c.sourceforge.net/
+In-directory: no
+Features:
+	- Message logging
+Note:
+	- Modeled after Java log4j
+	- For now, needs GCC to compile it
+	- A parallel log4c project, macro oriented, lighter is being developed
