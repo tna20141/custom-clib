@@ -11,4 +11,8 @@
 #define NULL 0
 #endif
 
+#ifndef EOF
+#define EOF -1
+#endif
+
 #endif

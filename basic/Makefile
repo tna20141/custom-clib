@@ -41,7 +41,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = basic_test
+TESTS = list_test
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -83,12 +83,13 @@ $(BIN_DIR)/gtest_main.a : $(BIN_DIR)/gtest-all.o $(BIN_DIR)/gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-$(BIN_DIR)/basic_test.o : $(TEST_DIR)/basic_test.cpp $(USER_DIR)/list.h $(USER_DIR)/utils.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) -I $(USER_DIR) -I $(INC_DIR) $(CXXFLAGS) -c $(TEST_DIR)/basic_test.cpp \
+$(BIN_DIR)/list_test.o : $(TEST_DIR)/list_test.cpp \
+	$(INC_DIR)/list.h $(INC_DIR)/utils.h $(INC_DIR)/common_macros.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) -I $(USER_DIR) -I $(INC_DIR) $(CXXFLAGS) -c $(TEST_DIR)/list_test.cpp \
 		-o $@
 
-$(BIN_DIR)/basic_test : $(BIN_DIR)/basic_test.o $(BIN_DIR)/gtest_main.a
+$(BIN_DIR)/list_test : $(BIN_DIR)/list_test.o $(BIN_DIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-basic_test: $(BIN_DIR)/basic_test
+list_test: $(BIN_DIR)/list_test
 	$(BIN_DIR)/$@
