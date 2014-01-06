@@ -5,6 +5,9 @@
 # depending on the maximum number of loops that the user wants
 #
 
+# the script name
+SCRIPT_NAME=$(basename $0)
+
 # root directory of Cloak
 CLOAK_ROOT=..
 
@@ -22,7 +25,8 @@ nl=$(echo -en "\n")
 
 # usage
 function usage {
-	echo "$PROGNAME: usage: $PROGNAME [OPTIONS]"
+	echo "$SCRIPT_NAME: generate the Cloak library"
+	echo "usage: $SCRIPT_NAME [OPTIONS]"
 	echo "    Options:"
 	echo "        -t | --template <template file>"
 	echo "        -n | --num <number of loops to generate>"
