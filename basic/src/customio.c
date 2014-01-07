@@ -10,14 +10,15 @@ int __customio_is_delim(char c, const char *delims, int ws) {
 			return 1;
 	}
 
-	while (delims[i] != NULL) {
+	while (delims[i] != '\0') {
 		if (c == delims[i])
 			return 1;
 		i++;
 	}
+	return 0;
 }
 
-int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int *num, char *delim) {
+int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int *num, char *delim, int ignore) {
 	char *ptr1 = NULL;
 	char *temp_ptr = NULL;
 	char temp_chr = 0;
@@ -30,6 +31,14 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 
 	/* continue until EOF or a delimiter is reached */
 	while ((temp_chr = fgetc(stream)) != EOF) {
+		/* if ignoring leading whitespaces */
+		if (ignore) {
+			if (customio_is_ws(temp_chr)) {
+				continue;
+			} else {
+				ignore = 0;
+			}
+		}
 		/* if a delimiter is reached, stop reading */
 		if (__customio_is_delim(temp_chr, delims, ws)) {
 			fseek(stream, -1, SEEK_CUR);
@@ -59,7 +68,7 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 	}
 
 	/* reallocate one last time to save space */
-	temp_ptr = realloc(temp_ptr, str_size+1);
+	temp_ptr = (char *)realloc(temp_ptr, str_size+1);
 	if (temp_ptr == NULL) {
 		free(ptr1);
 		return CUSTOMIO_ALLOC_ERROR;
@@ -68,8 +77,10 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 
 	/* save the results and return */
 	ptr1[str_size] = '\0';
-	*delim = temp_chr;
-	*num = str_size;
+	if (delim != NULL)
+		*delim = temp_chr;
+	if (num != NULL)
+		*num = str_size;
 	*ptr = ptr1;
 
 	return 0;
@@ -104,7 +115,7 @@ int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int *n
 		str_size++;
 
 		/* if a delimiter is reached, stop reading */
-		if (__customio_is_delim(temp_chr)) {
+		if (__customio_is_delim(temp_chr, delims, 0)) {
 			break;
 		}
 	}
@@ -116,7 +127,7 @@ int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int *n
 	}
 
 	/* reallocate one last time to save space */
-	temp_ptr = realloc(temp_ptr, str_size+1);
+	temp_ptr = (char *)realloc(temp_ptr, str_size+1);
 	if (temp_ptr == NULL) {
 		free(ptr1);
 		return CUSTOMIO_ALLOC_ERROR;
@@ -125,13 +136,14 @@ int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int *n
 
 	/* save the results and return */
 	ptr1[str_size] = '\0';
-	*num = str_size;
+	if (num != NULL)
+		*num = str_size;
 	*ptr = ptr1;
 
 	return 0;
 }
 
-int custom_eat_ws(FILE *stream, int *count) {
+int customio_eat_ws(FILE *stream, int *count) {
 	char temp = ' ';
 	int temp_count = 0;
 
@@ -151,7 +163,8 @@ int custom_eat_ws(FILE *stream, int *count) {
 	}
 
 	/* save result and return */
-	*count = temp_count;
+	if (count != NULL)
+		*count = temp_count;
 
 	return 0;
 }
@@ -164,11 +177,11 @@ void customio_trim_before(char *str) {
 		i++;
 	}
 	if (i == 0) {
-		return 0;
+		return;
 	}
 	if (str[i] == '\0') {
 		str[0] = '\0';
-		return 0;
+		return;
 	}
 
 	/* rotate the string left */
@@ -178,15 +191,13 @@ void customio_trim_before(char *str) {
 		j++;
 	}
 	str[j] = '\0';
-
-	return 0;
 }
 
 void customio_trim_after(char *str) {
 	int i = strlen(str)-1;
 
 	if (i == -1) {
-		return 0;
+		return;
 	}
 
 	/* find the first non-whitespace character from the right */
@@ -195,12 +206,9 @@ void customio_trim_after(char *str) {
 	}
 	/* end the string there */
 	str[i+1] = '\0';
-
-	return 0;
 }
 
 void customio_trim(char *str) {
 	customio_trim_before(str);
 	customio_trim_after(str);
-	return 0;
 }

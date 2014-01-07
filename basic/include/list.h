@@ -1,5 +1,5 @@
-#ifndef _CUSTOM_CLIB_BASIC_LIST_H
-#define _CUSTOM_CLIB_BASIC_LIST_H
+#ifndef _LIST_H
+#define _LIST_H
 
 #include "common_macros.h"
 #include "utils.h"
