@@ -131,6 +131,31 @@ int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int *n
 	return 0;
 }
 
+int custom_eat_ws(FILE *stream, int *count) {
+	char temp = ' ';
+	int temp_count = 0;
+
+	/* eat whitespaces */
+	while ((temp = fgetc(stream)) != EOF) {
+		if (customio_is_ws(temp)) {
+			temp_count++;
+			continue;
+		}
+		fseek(stream, -1, SEEK_CUR);
+		break;
+	}
+
+	/* check for read error */
+	if (ferror(stream)) {
+		return CUSTOMIO_READ_ERROR;
+	}
+
+	/* save result and return */
+	*count = temp_count;
+
+	return 0;
+}
+
 void customio_trim_before(char *str) {
 	int i = 0, j = 0;
 
