@@ -13,6 +13,18 @@
  * Note: current version only supports ASCII character set
  */
 
+/* the initial buffer size */
+#define CUSTOMIO_INIT_BUF_SIZE 256
+
+/* the buffer increment value */
+#define CUSTOMIO_BUF_INC 256
+
+/* enum type containing error codes */
+enum customio_error {
+	CUSTOMIO_READ_ERROR  = -2,
+	CUSTOMIO_ALLOC_ERROR = -3
+}
+
 /*
  * customio_is_ws - check if a character is whitespace or not
  * @c: character to check
@@ -21,13 +33,22 @@
 int customio_is_ws(char c);
 
 /*
- * customio_get_line - read a line
+ * customio_get_line - read a line, including the newline character
  * @stream: the input stream to read from
  * @ptr: the pointer to save the address of the read data
  * @num: the integer to save the number of characters read
  * @return: error code
  */
-int customio_get_line(FILE* stream, char** ptr, int* num);
+int customio_get_line(FILE *stream, char **ptr, int *num);
+
+/*
+ * customio_get_line_no_nl - read a line, excluding the newline character
+ * @stream: the input stream to read from
+ * @ptr: the pointer to save the address of the read data
+ * @num: the integer to save the number of characters read
+ * @return: error code
+ */
+int customio_get_line_no_nl(FILE *stream, char **ptr, int *num);
 
 /*
  * customio_get_before_ws - read a series of character until (and exclude) a whitespace
@@ -36,7 +57,7 @@ int customio_get_line(FILE* stream, char** ptr, int* num);
  * @num: the integer to save the number of characters read
  * @return: error code
  */
-int customio_get_before_ws(FILE* stream, char** ptr, int* num);
+int customio_get_before_ws(FILE *stream, char **ptr, int *num);
 
 /*
  * customio_get_before_delim - read a series of character until (and exclude) a delimeter
@@ -47,7 +68,7 @@ int customio_get_before_ws(FILE* stream, char** ptr, int* num);
  * @delim: the delim that is met
  * @return: error code
  */
-int customio_get_before_delim(FILE* stream, const char* delims, char** ptr, int* num, char* delim);
+int customio_get_before_delim(FILE *stream, const char *delims, char **ptr, int *num, char *delim);
 
 /*
  * customio_get_till_delim - read a series of character until (and include) a delimeter
@@ -58,20 +79,20 @@ int customio_get_before_delim(FILE* stream, const char* delims, char** ptr, int*
  * @delim: the delim that is met
  * @return: error code
  */
-int customio_get_till_delim(FILE* stream, const char* delims, char** ptr, int* num, char* delim);
+int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int *num, char *delim);
 
 /*
  * customio_eat_ws - eat a series of whitespace characters
  * @stream: the input stream to read from
  * @return: error code
  */
-int customio_eat_ws(FILE* stream);
+int customio_eat_ws(FILE *stream);
 
 /*
  * customio_get_line - eat a series of whitespace characters (error if none is found)
  * @stream: the input stream to read from
  * @return: error code
  */
-int customio_eat_ws_must(FILE* stream);
+int customio_eat_ws_must(FILE *stream);
 
 #endif
