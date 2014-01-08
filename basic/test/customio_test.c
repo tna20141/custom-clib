@@ -264,55 +264,52 @@ static void test_eat_ws(void **state) {
 }
 
 static void test_trim_before(void **state) {
-	char *str;
+	char str1[] = "  \n \t aa bb \n";
+	char str2[] = "a b \n ccd e ";
+	char str3[] = "\n\v\t  \n\r ";
 
-	str = "  \n \t aa bb \n";
-	customio_trim_before(str);
-	assert_string_equal("aa bb \n", str);
+	customio_trim_before(str1);
+	assert_string_equal("aa bb \n", str1);
 
-	str = "a b \n ccd e ";
-	customio_trim_before(str);
-	assert_string_equal("a b \n ccd e ", str);
+	customio_trim_before(str2);
+	assert_string_equal("a b \n ccd e ", str2);
 
-	str = "\n\v\t  \n\r ";
-	customio_trim_before(str);
-	assert_string_equal("", str);
+	customio_trim_before(str3);
+	assert_string_equal("", str3);
 }
 
 static void test_trim_after(void **state) {
-	char *str;
+	char str1[] = "  \n \t aa bb \n";
+	char str2[] = "  a b \n ccd e";
+	char str3[] = "\n\v\t  \n\r ";
 
-	str = "  \n \t aa bb \n";
-	customio_trim_after(str);
-	assert_string_equal("  \n \t aa bb", str);
+	customio_trim_after(str1);
+	assert_string_equal("  \n \t aa bb", str1);
 
-	str = "  a b \n ccd e";
-	customio_trim_after(str);
-	assert_string_equal("  a b \n ccd e", str);
+	customio_trim_after(str2);
+	assert_string_equal("  a b \n ccd e", str2);
 
-	str = "\n\v\t  \n\r ";
-	customio_trim_after(str);
-	assert_string_equal("", str);
+	customio_trim_after(str3);
+	assert_string_equal("", str3);
 }
 
 static void test_trim(void **state) {
-	char *str;
+	char str1[] = "  \n \t aa bb \n";
+	char str2[] = "  a b \n ccd e";
+	char str3[] = "a b \n ccd e\t\t";
+	char str4[] = "\n\v\t  \n\r ";
 
-	str = "  \n \t aa bb \n";
-	customio_trim(str);
-	assert_string_equal("aa bb", str);
+	customio_trim(str1);
+	assert_string_equal("aa bb", str1);
 
-	str = "  a b \n ccd e";
-	customio_trim(str);
-	assert_string_equal("a b \n ccd e", str);
+	customio_trim(str2);
+	assert_string_equal("a b \n ccd e", str2);
 
-	str = "a b \n ccd e\t\t";
-	customio_trim(str);
-	assert_string_equal("a b \n ccd e", str);
+	customio_trim(str3);
+	assert_string_equal("a b \n ccd e", str3);
 
-	str = "\n\v\t  \n\r ";
-	customio_trim(str);
-	assert_string_equal("", str);
+	customio_trim(str4);
+	assert_string_equal("", str4);
 }
 
 int main(void) {
@@ -323,7 +320,9 @@ int main(void) {
 		unit_test(test_get_before_delim_or_ws),
 		unit_test(test_get_till_delim),
 		unit_test(test_eat_ws),
-		unit_test(customio_trim_before)
+		unit_test(test_trim_before),
+		unit_test(test_trim_after),
+		unit_test(test_trim)
 	};
 
 	return run_tests(tests);
