@@ -47,7 +47,7 @@ static void test_get_before_ws(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	customio_get_before_ws(f, &buf, &num, &ws);
+	assert_int_equal(0, customio_get_before_ws(f, &buf, &num, &ws));
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	assert_int_equal(' ', ws);
@@ -121,7 +121,7 @@ static void test_get_before_delim(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	customio_get_before_delim(f, "e", &buf, &num, &ws);
+	assert_int_equal(0, customio_get_before_delim(f, "e", &buf, &num, &ws));
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	assert_int_equal('e', ws);
@@ -176,7 +176,7 @@ static void test_get_before_delim_or_ws(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	customio_get_before_delim_or_ws(f, "e", &buf, &num, &ws);
+	assert_int_equal(0, customio_get_before_delim_or_ws(f, "e", &buf, &num, &ws));
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	assert_int_equal('e', ws);
@@ -232,7 +232,7 @@ static void test_get_till_delim(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	customio_get_till_delim(f, "= cCe", &buf, &num);
+	assert_int_equal(0, customio_get_till_delim(f, "= cCe", &buf, &num));
 	assert_string_equal("aabbe", buf);
 	assert_int_equal(5, num);
 	free(buf);
