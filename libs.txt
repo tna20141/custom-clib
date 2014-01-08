@@ -13,11 +13,12 @@ Features:
 Google Test
 -----------
 URL: http://code.google.com/p/googletest/
-In-directory: yes
+In-directory: no
 Features:
 	- Write unit test for C/C++
 Note:
 	- Written in C++
+	- Chosen at first as main testing framework, but replaced
 
 Cmocka
 ------
