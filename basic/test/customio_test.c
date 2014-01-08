@@ -263,6 +263,58 @@ static void test_eat_ws(void **state) {
 	fclose(f);
 }
 
+static void test_trim_before(void **state) {
+	char *str;
+
+	str = "  \n \t aa bb \n";
+	customio_trim_before(str);
+	assert_string_equal("aa bb \n", str);
+
+	str = "a b \n ccd e ";
+	customio_trim_before(str);
+	assert_string_equal("a b \n ccd e ", str);
+
+	str = "\n\v\t  \n\r ";
+	customio_trim_before(str);
+	assert_string_equal("", str);
+}
+
+static void test_trim_after(void **state) {
+	char *str;
+
+	str = "  \n \t aa bb \n";
+	customio_trim_after(str);
+	assert_string_equal("  \n \t aa bb", str);
+
+	str = "  a b \n ccd e";
+	customio_trim_after(str);
+	assert_string_equal("  a b \n ccd e", str);
+
+	str = "\n\v\t  \n\r ";
+	customio_trim_after(str);
+	assert_string_equal("", str);
+}
+
+static void test_trim(void **state) {
+	char *str;
+
+	str = "  \n \t aa bb \n";
+	customio_trim(str);
+	assert_string_equal("aa bb", str);
+
+	str = "  a b \n ccd e";
+	customio_trim(str);
+	assert_string_equal("a b \n ccd e", str);
+
+	str = "a b \n ccd e\t\t";
+	customio_trim(str);
+	assert_string_equal("a b \n ccd e", str);
+
+	str = "\n\v\t  \n\r ";
+	customio_trim(str);
+	assert_string_equal("", str);
+}
+
 int main(void) {
 	const UnitTest tests[] = {
 		unit_test(test_is_ws),
@@ -270,7 +322,8 @@ int main(void) {
 		unit_test(test_get_before_delim),
 		unit_test(test_get_before_delim_or_ws),
 		unit_test(test_get_till_delim),
-		unit_test(test_eat_ws)
+		unit_test(test_eat_ws),
+		unit_test(customio_trim_before)
 	};
 
 	return run_tests(tests);
