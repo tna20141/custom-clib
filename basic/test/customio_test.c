@@ -260,7 +260,7 @@ static void test_eat_ws(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data, strlen(test_data), "rb");
-	customio_eat_ws(f, &count);
+	assert_int_equal(0, customio_eat_ws(f, &count));
 	assert_int_equal(0, ftell(f));
 	assert_int_equal(0, count);
 
