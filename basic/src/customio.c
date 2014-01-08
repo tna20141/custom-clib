@@ -18,16 +18,23 @@ int __customio_is_delim(char c, const char *delims, int ws) {
 	return 0;
 }
 
-int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int *num, char *delim, int ignore) {
-	char *ptr1 = NULL;
+int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int size, int *num, char *delim, int ignore) {
+	char *ptr1 = *ptr;
 	char *temp_ptr = NULL;
 	char temp_chr = 0;
-	int buf_size = CUSTOMIO_INIT_BUF_SIZE;
+	int buf_size = size;
 	int str_size = 0;
+	int reallocate = 0;
 
-	/* initial allocation */
-	ptr1 = (char *)malloc(buf_size);
-	temp_ptr = ptr1;
+	/* initial allocation if necessary */
+	if (ptr1 == NULL) {
+		buf_size = CUSTOMIO_INIT_BUF_SIZE;
+		ptr1 = (char *)malloc(buf_size);
+		if (ptr1 == NULL) {
+			return CUSTOMIO_ALLOC_ERROR;
+		}
+		reallocate = 1;
+	}
 
 	/* continue until EOF or a delimiter is reached */
 	while ((temp_chr = fgetc(stream)) != EOF) {
@@ -50,10 +57,12 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 			buf_size += CUSTOMIO_BUF_INC;
 			temp_ptr = (char *)realloc(ptr1, buf_size);
 			if (temp_ptr == NULL) {
-				free(ptr1);
+				if (reallocate)
+					free(ptr1);
 				return CUSTOMIO_ALLOC_ERROR;
 			}
 			ptr1 = temp_ptr;
+			reallocate = 1;
 		}
 
 		/* store the character and move on */
@@ -63,17 +72,21 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 
 	/* check for read error */
 	if (ferror(stream)) {
-		free(ptr1);
+		if (reallocate)
+			free(ptr1);
 		return CUSTOMIO_READ_ERROR;
 	}
 
-	/* reallocate one last time to save space */
-	temp_ptr = (char *)realloc(temp_ptr, str_size+1);
-	if (temp_ptr == NULL) {
-		free(ptr1);
-		return CUSTOMIO_ALLOC_ERROR;
+	/* reallocate one last time to save space, if necessary */
+	if (reallocate) {
+		temp_ptr = (char *)realloc(ptr1, str_size+1);
+		if (temp_ptr == NULL) {
+			if (reallocate)
+				free(ptr1);
+			return CUSTOMIO_ALLOC_ERROR;
+		}
+		ptr1 = temp_ptr;
 	}
-	ptr1 = temp_ptr;
 
 	/* save the results and return */
 	ptr1[str_size] = '\0';
@@ -86,58 +99,44 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 	return 0;
 }
 
-int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int *num) {
-	char *ptr1 = NULL;
+int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int size, int *num) {
+	int rv;
+	int n = 0;
+	char delim = '\0';
+	char *ptr1 = *ptr;
 	char *temp_ptr = NULL;
-	char temp_chr = 0;
-	int buf_size = CUSTOMIO_INIT_BUF_SIZE;
-	int str_size = 0;
 
-	/* initial allocation */
-	ptr1 = (char *)malloc(buf_size);
-	temp_ptr = ptr1;
+	/* get before delim */
+	rv = __customio_get_before_delim(stream, delims, 0, &ptr1, size, &n, &delim, 0);
+	if (rv)
+		return rv;
 
-	/* continue until EOF or a delimiter is reached */
-	while ((temp_chr = fgetc(stream)) != EOF) {
-		/* if the buffer is full, expand the buffer */
-		if (str_size+1 >= buf_size) {
-			buf_size += CUSTOMIO_BUF_INC;
-			temp_ptr = (char *)realloc(ptr1, buf_size);
-			if (temp_ptr == NULL) {
-				free(ptr1);
-				return CUSTOMIO_ALLOC_ERROR;
-			}
-			ptr1 = temp_ptr;
+	/* if EOF is met, return */
+	if (delim == EOF) {
+		goto ret;
+	}
+
+	/* else, resize memory if necessary and read the delimiter */
+	if (n+2 > size) {
+		temp_ptr = (char *)realloc(ptr1, n+2);
+		if (temp_ptr == NULL) {
+			free(ptr1);
+			return CUSTOMIO_ALLOC_ERROR;
 		}
-
-		/* store the character */
-		ptr1[str_size] = temp_chr;
-		str_size++;
-
-		/* if a delimiter is reached, stop reading */
-		if (__customio_is_delim(temp_chr, delims, 0)) {
-			break;
+		ptr1 = temp_ptr;
+		ptr1[n] = fgetc(stream);
+		if (ferror(stream)) {
+			free(ptr1);
+			return CUSTOMIO_READ_ERROR;
 		}
+		ptr1[n+1] = '\0';
 	}
-
-	/* check for read error */
-	if (ferror(stream)) {
-		free(ptr1);
-		return CUSTOMIO_READ_ERROR;
-	}
-
-	/* reallocate one last time to save space */
-	temp_ptr = (char *)realloc(temp_ptr, str_size+1);
-	if (temp_ptr == NULL) {
-		free(ptr1);
-		return CUSTOMIO_ALLOC_ERROR;
-	}
-	ptr1 = temp_ptr;
 
 	/* save the results and return */
-	ptr1[str_size] = '\0';
+	ret:
+
 	if (num != NULL)
-		*num = str_size;
+		*num = n+1;
 	*ptr = ptr1;
 
 	return 0;
