@@ -83,6 +83,8 @@ $(BIN_DIR)/gtest_main.a : $(BIN_DIR)/gtest-all.o $(BIN_DIR)/gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
+# list test
+
 $(BIN_DIR)/list_test.o : $(TEST_DIR)/list_test.cpp \
 	$(INC_DIR)/list.h $(INC_DIR)/utils.h $(INC_DIR)/common_macros.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) -I $(USER_DIR) -I $(INC_DIR) $(CXXFLAGS) -c $(TEST_DIR)/list_test.cpp \
@@ -91,5 +93,21 @@ $(BIN_DIR)/list_test.o : $(TEST_DIR)/list_test.cpp \
 $(BIN_DIR)/list_test : $(BIN_DIR)/list_test.o $(BIN_DIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-list_test: $(BIN_DIR)/list_test
-	$(BIN_DIR)/$@
+list_test : $(BIN_DIR)/list_test
+	$(BIN_DIR)/list_test
+
+# customio test
+
+$(BIN_DIR)/customio_test.o : $(TEST_DIR)/customio_test.cpp $(INC_DIR)/customio.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) -I $(USER_DIR) -I $(INC_DIR) $(CXXFLAGS) -std=c++11 \
+	-c $(TEST_DIR)/customio_test.cpp -o $@
+
+$(BIN_DIR)/customio.o : $(USER_DIR)/customio.c $(INC_DIR)/customio.h
+	$(CXX) $(CPPFLAGS) -I $(USER_DIR) -I $(INC_DIR) $(CXXFLAGS) -std=c++11 \
+	-c $(USER_DIR)/customio.c -o $@
+
+$(BIN_DIR)/customio_test : $(BIN_DIR)/customio_test.o $(BIN_DIR)/gtest_main.a $(BIN_DIR)/customio.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+customio_test : $(BIN_DIR)/customio_test
+	$(BIN_DIR)/customio_test

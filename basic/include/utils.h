@@ -1,5 +1,5 @@
-#ifndef _CUSTOM_CLIB_BASIC_UTILS_H
-#define _CUSTOM_CLIB_BASIC_UTILS_H
+#ifndef _UTILS_H
+#define _UTILS_H
 
 /**
  * offsetof - determine the location offset of a member in a struct
