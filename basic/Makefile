@@ -16,6 +16,10 @@ TEST_DIR = ./test
 # Where to put the compiled files.
 BIN_DIR = ./bin
 
+# clean binary files
+clean :
+	rm -rf $(BIN_DIR)/*
+
 #
 # Google Test stuff
 #
@@ -36,11 +40,6 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 # definition.
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
-
-# House-keeping build targets.
-
-clean :
-	rm -f $(TESTS) gtest.a gtest_main.a *.o
 
 # Builds gtest.a and gtest_main.a.
 
