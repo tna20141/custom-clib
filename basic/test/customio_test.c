@@ -100,12 +100,16 @@ static void test_get_before_ws(void **state) {
 	 * let's take get_before_ws to be the representative for everyone
 	 */
 	 buf = test_data1;
+	 num = 1000;
+	 ws = 'T';
 	 f = fmemopen(test_data4, strlen(test_data4), "wb");
 	 assert_int_equal(
 	 	CUSTOMIO_READ_ERROR,
-	 	customio_get_before_ws(f, &buf, NULL, NULL)
+	 	customio_get_before_ws(f, &buf, &num, &ws)
 	 ),
 	 assert_int_equal(test_data1, buf);
+	 assert_int_equal(1000, num);
+	 assert_int_equal('T', ws);
 	 fclose(f);
 }
 
