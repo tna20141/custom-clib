@@ -23,7 +23,6 @@
 #include <customio.h>
 
 static void test_is_ws(void **state) {
-	(void) state;
 	assert_int_equal(1, customio_is_ws('\n'));
 	assert_int_equal(1, customio_is_ws('\t'));
 	assert_int_equal(1, customio_is_ws('\r'));
