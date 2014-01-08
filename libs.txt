@@ -19,6 +19,17 @@ Features:
 Note:
 	- Written in C++
 
+Cmocka
+------
+URL: http://cmocka.org/
+In-directory: yes
+Features:
+	- C unit testing framework
+	- Support mock
+Note:
+	- This framework is for pure C, not C++
+	- I used to use Google Test, but then migrated to this
+
 Cloak
 -----
 URL: https://github.com/pfultz2/Cloak
