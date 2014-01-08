@@ -95,6 +95,19 @@ static void test_get_before_ws(void **state) {
 	assert_int_equal(EOF, ws);
 	free(buf);
 	fclose(f);
+
+	/*
+	 * below is test for abnormal cases
+	 * let's take get_before_ws to be the representative for everyone
+	 */
+	 buf = test_data1;
+	 f = fmemopen(test_data4, strlen(test_data4), "wb");
+	 assert_int_equal(
+	 	CUSTOMIO_READ_ERROR,
+	 	customio_get_before_ws(f, &buf, NULL, NULL)
+	 ),
+	 assert_int_equal(test_data1, buf);
+	 fclose(f);
 }
 
 static void test_get_before_delim(void **state) {
