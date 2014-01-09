@@ -41,6 +41,7 @@ static void test_get_before_ws(void **state) {
 	char test_data3[] = "\taabbcc";
 	char test_data4[1024];
 	char *buf = NULL;
+	char *old_buf = NULL;
 	char ws;
 	int num = 0, i;
 	FILE *f = NULL;
@@ -51,21 +52,27 @@ static void test_get_before_ws(void **state) {
 	assert_int_equal(4, num);
 	assert_int_equal(' ', ws);
 
+	old_buf = buf;
 	assert_int_equal(0, customio_get_before_ws_ignore(f, &buf, num+1, NULL, NULL));
 	assert_string_equal("cc", buf);
+	assert_int_equal(old_buf, buf);
 
 	assert_int_equal(0, customio_get_before_ws_ignore(f, &buf, num+1, &num, &ws));
 	assert_string_equal("dd", buf);
 	assert_int_equal(2, num);
 	assert_int_equal(EOF, ws);
+	assert_int_equal(old_buf, buf);
 	free(buf);
 	buf = NULL;
 	fclose(f);
 
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
-	assert_int_equal(0, customio_get_before_ws(f, &buf, 0, &num, NULL));
+	buf = (char *)malloc(6);
+	old_buf = buf;
+	assert_int_equal(0, customio_get_before_ws(f, &buf, 6, &num, NULL));
 	assert_string_equal("aabbcc", buf);
 	assert_int_equal(6, num);
+	assert_int_equal(old_buf, buf);
 	fclose(f);
 
 	f = fmemopen(test_data3, strlen(test_data3), "rb");
@@ -73,23 +80,26 @@ static void test_get_before_ws(void **state) {
 	assert_string_equal("", buf);
 	assert_int_equal(0, num);
 	assert_int_equal('\t', ws);
+	assert_int_equal(old_buf, buf);
 	free(buf);
 	buf = NULL;
 	fclose(f);
 
 	for (i = 0; i < 1023; i++)
 		test_data4[i] = 'a';
-	test_data4[600] = ' ';
+	test_data4[400] = ' ';
 	test_data4[1023] = '\0';
 
 	f = fmemopen(test_data4, strlen(test_data4), "rb");
 	assert_int_equal(0, customio_get_before_ws(f, &buf, 0, &num, &ws));
-	assert_int_equal(600, num);
+	assert_int_equal(400, num);
 	assert_int_equal(' ', ws);
 
+	old_buf = buf;
 	assert_int_equal(0, customio_get_before_ws_ignore(f, &buf, num+1, &num, &ws));
-	assert_int_equal(422, num);
+	assert_int_equal(622, num);
 	assert_int_equal(EOF, ws);
+	assert_int_not_equal(old_buf, buf);
 	free(buf);
 	buf = NULL;
 	fclose(f);
@@ -225,6 +235,7 @@ static void test_get_till_delim(void **state) {
 	char test_data1[] = "aabbecc\n dd";
 	char test_data2[1024];
 	char *buf = NULL;
+	char *old_buf = NULL;
 	int num = 0, i;
 	FILE *f = NULL;
 
@@ -241,12 +252,26 @@ static void test_get_till_delim(void **state) {
 
 	for (i = 0; i < 1023; i++)
 		test_data2[i] = 'a';
-	test_data2[768] = '$';
+	test_data2[383] = '^';
+	test_data2[767] = '$';
 	test_data2[1023] = '\0';
 
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
-	customio_get_till_delim(f, "bc$", &buf, 2, &num);
-	assert_int_equal(769, num);
+	customio_get_till_delim(f, "x^^y", &buf, 3, &num);
+	assert_int_equal(384, num);
+
+	old_buf = buf;
+	customio_get_till_delim(f, "bc$", &buf, num+1, &num);
+	assert_int_equal(384, num);
+	assert_int_equal(old_buf, buf);
+	fclose(f);
+
+	test_data2[383] = 'b';
+	test_data2[384] = '@';
+	f = fmemopen(test_data2, strlen(test_data2), "rb");
+	assert_int_equal(0, customio_get_till_delim(f, "@", &buf, num+1, &num));
+	assert_int_equal(385, num);
+	assert_int_not_equal(old_buf, buf);
 	free(buf);
 	buf = NULL;
 	fclose(f);

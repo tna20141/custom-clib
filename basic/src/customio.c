@@ -53,7 +53,7 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 		}
 
 		/* if the buffer is full, expand the buffer */
-		if (str_size+1 >= buf_size) {
+		if (str_size+2 >= buf_size) {
 			buf_size += CUSTOMIO_BUF_INC;
 			temp_ptr = (char *)realloc(ptr1, buf_size);
 			if (temp_ptr == NULL) {
