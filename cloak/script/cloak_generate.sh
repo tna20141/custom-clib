@@ -12,7 +12,7 @@ SCRIPT_NAME=$(basename $0)
 CLOAK_ROOT=..
 
 # template file
-template=$CLOAK_ROOT/src/cloak_template.h
+template=$CLOAK_ROOT/include/cloak_template.h
 
 # maximum number of loops to generate
 num=20
@@ -31,12 +31,17 @@ function usage {
 	echo "        -t | --template <template file>"
 	echo "        -n | --num <number of loops to generate>"
 	echo "        -o | --output <output file>"
+	echo "        -h | --help"
 	return
 }
 
 # parse commandline arguments
 while [[ -n $1 ]]; do
 	case $1 in
+		-h | --help )
+			usage
+			exit 0
+			;;
 		-t | --template )
 			shift
 			template=$1
@@ -67,7 +72,7 @@ if [[ $num -lt 2 ]]; then
 fi
 
 if [[ -z $output ]]; then
-	output=$CLOAK_ROOT/src/cloak_${num}.h
+	output=$CLOAK_ROOT/include/cloak_${num}.h
 fi
 
 
