@@ -51,6 +51,19 @@ $(BIN_DIR)/customio_test : $(CUSTOMIO_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
 customio_test : $(BIN_DIR)/customio_test
 	$(BIN_DIR)/customio_test
 
+# basic list test
+
+LIST_CCFLAGS =
+
+LIST_FILES = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_list.h $(TEST_DIR)/basic_list_test.c
+
+$(BIN_DIR)/basic_list_test : $(LIST_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
+	$(CC) $(CMOCKA_CCFLAGS) $(CMOCKA_SRC) $(TEST_DIR)/basic_list_test.c \
+		$(LIST_CCFLAGS) -I $(INC_DIR) -o $@
+
+basic_list_test : $(BIN_DIR)/basic_list_test
+	$(BIN_DIR)/basic_list_test
+
 #
 # end of Cmocka test
 #

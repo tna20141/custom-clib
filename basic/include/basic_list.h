@@ -1,8 +1,7 @@
-#ifndef _LIST_H
-#define _LIST_H
+#ifndef _BASIC_LIST_H
+#define _BASIC_LIST_H
 
-#include "common_macros.h"
-#include "utils.h"
+#include "basic_general.h"
 
 /*
  * Simple doubly linked list implementation.
@@ -368,7 +367,7 @@ static inline void list_splice_tail_init(struct list_head *list,
  * @member:	the name of the list_struct within the struct.
  */
 #define list_entry(ptr, type, member) \
-	container_of(ptr, type, member)
+	CONTAINER_OF(ptr, type, member)
 
 /**
  * list_first_entry - get the first element from a list
@@ -695,7 +694,7 @@ static inline void hlist_move_list(struct hlist_head *old,
 	old->first = NULL;
 }
 
-#define hlist_entry(ptr, type, member) container_of(ptr,type,member)
+#define hlist_entry(ptr, type, member) CONTAINER_OF(ptr,type,member)
 
 #define hlist_for_each(pos, head) \
 	for (pos = (head)->first; pos ; pos = pos->next)
