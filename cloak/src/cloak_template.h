@@ -1,5 +1,5 @@
-#ifndef _CUSTOM_CLIB_CLOAK_TEMPLATE_H
-#define _CUSTOM_CLIB_CLOAK_TEMPLATE_H
+#ifndef _CLOAK_TEMPLATE_H
+#define _CLOAK_TEMPLATE_H
 
 /*
  * Pasting macro

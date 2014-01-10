@@ -108,7 +108,9 @@ CMOCKA_CCFLAGS = -isystem $(CMOCKA_DIR)/include -g
 
 CUSTOMIO_CCFLAGS =
 
-$(BIN_DIR)/customio_test : $(SRC_DIR)/customio.c $(INC_DIR)/customio.h $(TEST_DIR)/customio_test.c \
+CUSTOMIO_FILES = $(SRC_DIR)/customio.c $(INC_DIR)/customio.h $(TEST_DIR)/customio_test.c
+
+$(BIN_DIR)/customio_test : $(CUSTOMIO_FILES) \
 	$(CMOCKA_SRC) $(CMOCKA_HEADERS)
 	$(CC) $(CMOCKA_CCFLAGS) $(SRC_DIR)/customio.c $(CMOCKA_SRC) $(TEST_DIR)/customio_test.c \
 		$(CUSTOMIO_CCFLAGS) -I $(INC_DIR) -o $@

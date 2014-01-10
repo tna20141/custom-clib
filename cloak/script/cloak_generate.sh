@@ -74,7 +74,7 @@ fi
 # update include guard
 base=$(basename $output)
 base_macro=$(echo -n $base | tr '[:lower:]' '[:upper:]' | tr '.' '_')
-sed "s/_CUSTOM_CLIB_CLOAK_TEMPLATE_H/_CUSTOM_CLIB_${base_macro}/g" \
+sed "s/_CLOAK_TEMPLATE_H/_${base_macro}/g" \
 	$template > $output
 
 # add macros for the loops
