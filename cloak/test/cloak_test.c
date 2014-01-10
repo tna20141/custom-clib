@@ -89,3 +89,8 @@ int main(void) {
 
 	return run_tests(tests);
 }
+
+#undef M_REPEAT_COMMA
+#undef M_REPEAT3
+#undef M_REPEAT2
+#undef M_REPEAT1
