@@ -1,118 +1,137 @@
 #ifndef _BASIC_TREE_H
 #define _BASIC_TREE_H
 
+#include <stdlib.h>
 #include "basic_general.h"
 #include "basic_list.h"
+
+
+/*
+ * convenient macros for shortening code lines, will be undefined at the end
+ */
+#define bttr basic_tree_traverse_ret
+#define btta basic_tree_traverse_args
+#define bttf basic_tree_traverse_func
+#define btdcr basic_tree_data_clean_ret
+#define btdca basic_tree_data_clean_args
+#define btdcf basic_tree_data_clean_func
+#define btto basic_tree_traverse_order
+#define btec basic_tree_error_code
 
 /*
  * type definitions
  */
 
+/* data of each node in a tree */
+typedef void * btnode_data;
+
 /* tree node struct */
 struct basic_tree_node {
-	node_data data;
+	btnode_data data;
 	struct basic_tree_node *next;
 	struct basic_tree_node *parent;
-	struct list_head *siblings;
-	struct list_head *children;
+	struct list_head siblings;
+	struct list_head children;
 };
-
-typedef struct basic_tree_node tnode;
-
-/* data of each node in a tree */
-typedef void * node_data;
+typedef struct basic_tree_node btnode;
 
 /* tree traverse function */
-typedef int basic_tree_traverse_ret;
-typedef void * basic_tree_traverse_args;
-typedef basic_tree_traverse_ret (*basic_tree_traverse_func)(tnode *, basic_tree_traverse_args *);
+typedef int bttr;
+typedef void * btta;
+typedef bttr (*bttf)(btnode *, btta *);
 
 /* node data clean up function */
-typedef void basic_tree_data_clean_ret;
-typedef void * basic_tree_data_clean_args;
-typedef basic_tree_data_clean_ret (*basic_tree_data_clean_func)(node_data *, basic_tree_data_clean_args);
+typedef void btdcr;
+typedef void * btdca;
+typedef btdcr (*btdcf)(btnode_data *, btdca);
 
 /*
  * enumarations
  */
 
 /* enum for tree traverse order */
-enum basic_tree_traverse_order {
-	ORDER_DFS,
-	ORDER_BFS
-}
+typedef enum {
+	BASIC_TREE_ORDER_DFS,
+	BASIC_TREE_ORDER_BFS
+} btto;
+
+/* enum for error codes */
+typedef enum {
+	BASIC_TREE_INDEX_ERROR = -1
+} btec;
+
 
 /*
  * API functions
  */
-static inline tnode *basic_tree_new(node_data data);
+static inline btnode *basic_tree_new(btnode_data data);
 
-basic_tree_insert(tnode *node, tnode *parent, int pos);
+btec basic_tree_insert(btnode *node, btnode *parent, int pos);
 
-static inline void basic_tree_insert_after(tnode *node, tnode *sibling);
+static inline void basic_tree_insert_after(btnode *node, btnode *sibling);
 
-static inline void basic_tree_insert_before(tnode *node, tnode *sibling);
+static inline void basic_tree_insert_before(btnode *node, btnode *sibling);
 
-static inline void basic_tree_append(tnode *node, tnode *parent);
+static inline void basic_tree_append(btnode *node, btnode *parent);
 
-static inline void basic_tree_prepend(tnode *node, tnode *parent);
+static inline void basic_tree_prepend(btnode *node, btnode *parent);
 
-static inline void basic_tree_unlink(tnode *node);
+static inline void basic_tree_unlink(btnode *node);
 
-void basic_tree_traverse(tnode *root, int max_depth, basic_tree_traverse_order order, basic_tree_traverse_func func, basic_tree_traverse_args args);
+void basic_tree_traverse(btnode *root, int max_depth, btto order, bttf func, btta args);
 
-static inline tnode *basic_tree_get_root(tnode *node);
+static inline btnode *basic_tree_get_root(btnode *node);
 
-static inline int basic_tree_child_position(tnode *node);
+static inline int basic_tree_child_position(btnode *node);
 
-static inline tnode *basic_tree_nth_child(tnode *parent, int pos);
+static inline btnode *basic_tree_nth_child(btnode *parent, int pos);
 
-static inline tnode *basic_tree_prev_sibling(tnode *node);
+static inline btnode *basic_tree_prev_sibling(btnode *node);
 
-static inline tnode *basic_tree_next_sibling(tnode *node);
+static inline btnode *basic_tree_next_sibling(btnode *node);
 
-static inline tnode *basic_tree_nth_sibling(tnode *node, int pos);
+static inline btnode *basic_tree_nth_sibling(btnode *node, int pos);
 
-static inline int basic_tree_depth(tnode *node);
+static inline int basic_tree_depth(btnode *node);
 
-static inline int basic_tree_num_children(tnode *parent);
+static inline int basic_tree_num_children(btnode *parent);
 
-static inline int basic_tree_num_nodes(tnode *root);
+static inline int basic_tree_num_nodes(btnode *root);
 
-static inline int basic_tree_height(tnode *root);
+static inline int basic_tree_height(btnode *root);
 
-static inline int basic_tree_is_parent(tnode *parent, tnode *child);
+static inline int basic_tree_is_parent(btnode *parent, btnode *child);
 
-static inline int basic_tree_is_ancestor(tnode *ancestor, tnode *descendant);
+static inline int basic_tree_is_ancestor(btnode *ancestor, btnode *descendant);
 
-static inline int basic_tree_is_siblings(tnode *node1, tnode *node2);
+static inline int basic_tree_is_siblings(btnode *node1, btnode *node2);
 
-static inline int basic_tree_is_root(tnode *node);
+static inline int basic_tree_is_root(btnode *node);
 
-static inline int basic_tree_is_leaf(tnode *node);
+static inline int basic_tree_is_leaf(btnode *node);
 
-static inline int basic_tree_is_alone(tnode *node);
+static inline int basic_tree_is_alone(btnode *node);
 
-static inline void basic_tree_destroy(tnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args);
+static inline void basic_tree_destroy(btnode *node, btdcf func, btdca args);
 
-static inline void basic_tree_destroy_tree(tnode *node, basic_tree_data_clean_func func,  basic_tree_data_clean_args args);
+static inline void basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
 
 /*
  * private functions
  */
-tnode *__basic_tree_nth_child(tnode *parent, int pos);
+btnode *__basic_tree_nth_child(btnode *parent, int pos);
 
-int __basic_tree_num_nodes(tnode *node);
+int __basic_tree_num_nodes(btnode *node);
 
-int __basic_tree_height(tnode *node);
+int __basic_tree_height(btnode *node);
 
-void __basic_tree_destroy_tree(tnode *node, basic_tree_data_clean_func func,  basic_tree_data_clean_args args);
+void __basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
 
 /*
  * inline function definitions
  */
-static inline tnode *basic_tree_new(node_data data) {
-	tnode * node = (tnode *)malloc(sizeof(tnode));
+static inline btnode *basic_tree_new(btnode_data data) {
+	btnode *node = (btnode *)malloc(sizeof(btnode));
 	INIT_LIST_HEAD(&(node->siblings));
 	INIT_LIST_HEAD(&(node->children));
 	node->parent = NULL;
@@ -120,41 +139,41 @@ static inline tnode *basic_tree_new(node_data data) {
 	return node;
 }
 
-static inline void basic_tree_insert_after(tnode *node, tnode *sibling) {
+static inline void basic_tree_insert_after(btnode *node, btnode *sibling) {
 	list_add_after(&(node->siblings), &(sibling->siblings));
 	node->parent = sibling->parent;
 }
 
-static inline void basic_tree_insert_before(tnode *node, tnode *sibling) {
-	list_add_after(&(node->siblings), &(sibling->siblings->prev));
+static inline void basic_tree_insert_before(btnode *node, btnode *sibling) {
+	list_add_after(&(node->siblings), sibling->siblings.prev);
 	node->parent = sibling->parent;
 }
 
-static inline void basic_tree_append(tnode *node, tnode *parent) {
-	list_add_after(&(node->siblings), &(parent->children->prev));
+static inline void basic_tree_append(btnode *node, btnode *parent) {
+	list_add_after(&(node->siblings), parent->children.prev);
 	node->parent = parent;
 }
 
-static inline void basic_tree_prepend(tnode *node, tnode *parent) {
+static inline void basic_tree_prepend(btnode *node, btnode *parent) {
 	list_add_after(&(node->siblings), &(parent->children));
 	node->parent = parent;
 }
 
-static inline void basic_tree_unlink(tnode *node) {
+static inline void basic_tree_unlink(btnode *node) {
 	node->parent = NULL;
 	list_del(&(node->siblings));
 }
 
-static inline tnode *basic_tree_get_root(tnode *node) {
-	tnode *ptr = node;
+static inline btnode *basic_tree_get_root(btnode *node) {
+	btnode *ptr = node;
 	while (ptr->parent != NULL) {
 		ptr = ptr->parent;
 	}
 	return ptr;
 }
 
-static inline int basic_tree_child_position(tnode *node) {
-	tnode *ptr;
+static inline int basic_tree_child_position(btnode *node) {
+	btnode *ptr;
 	int pos = 0;
 
 	/* if this node is a root, consider it a first child */
@@ -169,39 +188,39 @@ static inline int basic_tree_child_position(tnode *node) {
 	return pos;
 }
 
-static inline tnode *basic_tree_nth_child(tnode *parent, int pos) {
-	if (parent->children == NULL)
+static inline btnode *basic_tree_nth_child(btnode *parent, int pos) {
+	if (basic_tree_is_leaf(parent))
 		return NULL;
 	return __basic_tree_nth_child(parent, pos);
 }
 
-static inline tnode *basic_tree_prev_sibling(tnode *node) {
-	tnode *sibling;
+static inline btnode *basic_tree_prev_sibling(btnode *node) {
+	btnode *sibling;
 
 	if (node->parent == NULL)
 		return NULL;
 
-	sibling = container_of(node->siblings->prev, tnode, siblings);
+	sibling = CONTAINER_OF(node->siblings.prev, btnode, siblings);
 	if (sibling == node->parent)
 		return NULL;
 	else
 		return sibling;
 }
 
-static inline tnode *basic_tree_next_sibling(tnode *node) {
-	tnode *sibling;
+static inline btnode *basic_tree_next_sibling(btnode *node) {
+	btnode *sibling;
 
 	if (node->parent == NULL)
 		return NULL;
 
-	sibling = container_of(node->siblings->next, tnode, siblings);
+	sibling = CONTAINER_OF(node->siblings.next, btnode, siblings);
 	if (sibling == node->parent)
 		return NULL;
 	else
 		return sibling;
 }
 
-static inline tnode *basic_tree_nth_sibling(tnode *node, int pos) {
+static inline btnode *basic_tree_nth_sibling(btnode *node, int pos) {
 	/* if it has no parent, only itself is the 0th sibling */
 	if (node->parent == NULL)
 		if (pos == 0)
@@ -212,8 +231,8 @@ static inline tnode *basic_tree_nth_sibling(tnode *node, int pos) {
 	return __basic_tree_nth_child(node->parent, pos);
 }
 
-static inline int basic_tree_depth(tnode *node) {
-	tnode *ptr = node;
+static inline int basic_tree_depth(btnode *node) {
+	btnode *ptr = node;
 	int depth = 1;
 
 	while (ptr->parent != NULL) {
@@ -223,12 +242,9 @@ static inline int basic_tree_depth(tnode *node) {
 	return depth;
 }
 
-static inline int basic_tree_num_children(tnode *parent) {
-	tnode *ptr;
+static inline int basic_tree_num_children(btnode *parent) {
+	btnode *ptr;
 	int num = 0;
-
-	if (ptr == NULL)
-		return 0;
 
 	list_for_each_entry(ptr, &(parent->children), siblings) {
 		num++;
@@ -236,26 +252,26 @@ static inline int basic_tree_num_children(tnode *parent) {
 	return num;
 }
 
-static inline int basic_tree_num_nodes(tnode *root) {
+static inline int basic_tree_num_nodes(btnode *root) {
 	if (root == NULL)
 		return 0;
 
 	return __basic_tree_num_nodes(root);
 }
 
-static inline int basic_tree_height(tnode *root) {
+static inline int basic_tree_height(btnode *root) {
 	if (root == NULL)
 		return 0;
 
 	return __basic_tree_height(root);
 }
 
-static inline int basic_tree_is_parent(tnode *parent, tnode *child) {
+static inline int basic_tree_is_parent(btnode *parent, btnode *child) {
 	return (child->parent == parent);
 }
 
-static inline int basic_tree_is_ancestor(tnode *ancestor, tnode *descendant) {
-	tnode *ptr = descendant->parent;
+static inline int basic_tree_is_ancestor(btnode *ancestor, btnode *descendant) {
+	btnode *ptr = descendant->parent;
 
 	while (ptr != NULL) {
 		if (ptr == ancestor)
@@ -265,8 +281,8 @@ static inline int basic_tree_is_ancestor(tnode *ancestor, tnode *descendant) {
 	return 0;
 }
 
-static inline int basic_tree_is_siblings(tnode *node1, tnode *node2) {
-	tnode *ptr;
+static inline int basic_tree_is_siblings(btnode *node1, btnode *node2) {
+	btnode *ptr;
 
 	list_for_each_entry(ptr, &(node1->parent->children), siblings) {
 		if (ptr == node2)
@@ -276,26 +292,38 @@ static inline int basic_tree_is_siblings(tnode *node1, tnode *node2) {
 	return 0;
 }
 
-static inline int basic_tree_is_root(tnode *node) {
+static inline int basic_tree_is_root(btnode *node) {
 	return (node->parent == NULL);
 }
 
-static inline int basic_tree_is_leaf(tnode *node) {
+static inline int basic_tree_is_leaf(btnode *node) {
 	return (list_empty(&(node->children)));
 }
 
-static inline int basic_tree_is_alone(tnode *node) {
+static inline int basic_tree_is_alone(btnode *node) {
 	return (basic_tree_is_root(node) && basic_tree_is_leaf(node));
 }
 
-static inline void basic_tree_destroy(tnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
+static inline void basic_tree_destroy(btnode *node, btdcf func, btdca args) {
 	if (func != NULL)
 		func(node->data, args);
 	free(node);
 }
 
-static inline void basic_tree_destroy_tree(tnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
-	__basic_tree_destroy_tree(node, basic_tree_data_clean_func func, basic_tree_data_clean_args args);
+static inline void basic_tree_destroy_tree(btnode *node, btdcf func, btdca args) {
+	__basic_tree_destroy_tree(node, func, args);
 }
+
+/*
+ * undefining the convenient macros
+ */
+#undef bttr
+#undef btta
+#undef bttf
+#undef btdcr
+#undef btdca
+#undef btdcf
+#undef btto
+#undef btec
 
 #endif

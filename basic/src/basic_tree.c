@@ -1,40 +1,49 @@
 #include <stdlib.h>
 #include <basic_tree.h>
 
-void basic_tree_insert(tnode *node, tnode *parent, int pos) {
-	tnode *ptr;
+/*
+ * convenient macros for shortening code lines, will be undefined at the end
+ */
+#define bttr basic_tree_traverse_ret
+#define btta basic_tree_traverse_args
+#define bttf basic_tree_traverse_func
+#define btdcr basic_tree_data_clean_ret
+#define btdca basic_tree_data_clean_args
+#define btdcf basic_tree_data_clean_func
+#define btto basic_tree_traverse_order
+#define btec basic_tree_error_code
+
+
+btec basic_tree_insert(btnode *node, btnode *parent, int pos) {
+	btnode *ptr;
 
 	/* if this is the first child */
-	if (parent->children == NULL) {
-		parent->children = node;
+	if (basic_tree_is_leaf(parent)) {
+		list_add(&(node->siblings), &(parent->children));
 		goto ret;
 	}
 
 	/* else */
 
-	ptr = tnode * __basic_tree_nth_child(tnode *parent, pos);
+	ptr = __basic_tree_nth_child(parent, pos);
 	if (ptr == NULL)
-		return;
+		return BASIC_TREE_INDEX_ERROR;
 
 	/* insert node */
 	if (pos < 0)
-		__basic_tree_insert(node, ptr, ptr->next);
+		list_add_after(&(node->siblings), &(ptr->siblings));
 	else
-		__basic_tree_insert(node, ptr->prev, ptr);
-
-	/* update parent's children pointer if necessary */
-	if (pos == 0) {
-		parent->children = node;
-	}
+		list_add_after(&(node->siblings), ptr->siblings.prev);
 
 	ret:
 
 	/* set new node's parent */
 	node->parent = parent;
+	return 0;
 }
 
-tnode *__basic_tree_nth_child(tnode *parent, int pos) {
-	tnode *ptr;
+btnode *__basic_tree_nth_child(btnode *parent, int pos) {
+	btnode *ptr;
 	int i = 0;
 
 	if (pos < 0) {
@@ -55,11 +64,11 @@ tnode *__basic_tree_nth_child(tnode *parent, int pos) {
 	return NULL;
 }
 
-int __basic_tree_num_nodes(tnode *node) {
-	tnode *ptr;
+int __basic_tree_num_nodes(btnode *node) {
+	btnode *ptr;
 	int num = 1;
 
-	if (ptr == NULL)
+	if (basic_tree_is_leaf(node))
 		return 1;
 
 	/* count nodes recursively */
@@ -69,12 +78,12 @@ int __basic_tree_num_nodes(tnode *node) {
 	return num;
 }
 
-int __basic_tree_height(tnode *node) {
-	tnode *ptr = node->children;
+int __basic_tree_height(btnode *node) {
+	btnode *ptr;
 	int max_height = 1;
 	int height;
 
-	if (ptr == NULL)
+	if (basic_tree_is_leaf(node))
 		return 1;
 
 	list_for_each_entry(ptr, &(node->children), siblings) {
@@ -85,8 +94,8 @@ int __basic_tree_height(tnode *node) {
 	return max_height+1;
 }
 
-void __basic_tree_destroy_tree(tnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
-	tnode *ptr;
+void __basic_tree_destroy_tree(btnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
+	btnode *ptr;
 
 	if (basic_tree_is_leaf(node)) {
 		basic_tree_destroy(node, func, args);
@@ -97,3 +106,15 @@ void __basic_tree_destroy_tree(tnode *node, basic_tree_data_clean_func func, bas
 		__basic_tree_destroy_tree(ptr, func, args);
 	}
 }
+
+/*
+ * undefining the convenient macros
+ */
+#undef bttr
+#undef btta
+#undef bttf
+#undef btdcr
+#undef btdca
+#undef btdcf
+#undef btto
+#undef btec

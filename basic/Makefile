@@ -42,10 +42,14 @@ CMOCKA_CCFLAGS = -isystem $(CMOCKA_DIR)/include -g
 
 CUSTOMIO_CCFLAGS =
 
-CUSTOMIO_FILES = $(SRC_DIR)/customio.c $(INC_DIR)/customio.h $(TEST_DIR)/customio_test.c
+CUSTOMIO_SRCS = $(SRC_DIR)/customio.c
+
+CUSTOMIO_HEADERS = $(INC_DIR)/customio.h
+
+CUSTOMIO_FILES = $(CUSTOMIO_SRCS) $(CUSTOMIO_HEADERS) $(TEST_DIR)/customio_test.c
 
 $(BIN_DIR)/customio_test : $(CUSTOMIO_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
-	$(CC) $(CMOCKA_CCFLAGS) $(SRC_DIR)/customio.c $(CMOCKA_SRC) $(TEST_DIR)/customio_test.c \
+	$(CC) $(CMOCKA_CCFLAGS) $(CUSTOMIO_SRCS) $(CMOCKA_SRC) $(TEST_DIR)/customio_test.c \
 		$(CUSTOMIO_CCFLAGS) -I $(INC_DIR) -o $@
 
 customio_test : $(BIN_DIR)/customio_test
@@ -55,14 +59,35 @@ customio_test : $(BIN_DIR)/customio_test
 
 LIST_CCFLAGS =
 
-LIST_FILES = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_list.h $(TEST_DIR)/basic_list_test.c
+LIST_SRCS =
+
+LIST_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_list.h
+
+LIST_FILES = $(LIST_HEADERS) $(TEST_DIR)/basic_list_test.c
 
 $(BIN_DIR)/basic_list_test : $(LIST_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
-	$(CC) $(CMOCKA_CCFLAGS) $(CMOCKA_SRC) $(TEST_DIR)/basic_list_test.c \
+	$(CC) $(CMOCKA_CCFLAGS) $(LIST_SRCS) $(CMOCKA_SRC) $(TEST_DIR)/basic_list_test.c \
 		$(LIST_CCFLAGS) -I $(INC_DIR) -o $@
 
 basic_list_test : $(BIN_DIR)/basic_list_test
 	$(BIN_DIR)/basic_list_test
+
+# basic tree test
+
+TREE_CCFLAGS =
+
+TREE_SRCS = $(SRC_DIR)/basic_tree.c
+
+TREE_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_list.h $(INC_DIR)/basic_tree.h
+
+TREE_FILES = $(TREE_SRCS) $(TREE_HEADERS) $(TEST_DIR)/basic_tree_test.c
+
+$(BIN_DIR)/basic_tree_test : $(TREE_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
+	$(CC) $(CMOCKA_CCFLAGS) $(TREE_SRCS) $(CMOCKA_SRC) $(TEST_DIR)/basic_tree_test.c \
+		$(TREE_CCFLAGS) -I $(INC_DIR) -o $@
+
+basic_tree_test : $(BIN_DIR)/basic_tree_test
+	$(BIN_DIR)/basic_tree_test
 
 #
 # end of Cmocka test
