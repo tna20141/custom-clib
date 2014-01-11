@@ -78,7 +78,7 @@ static inline void list_add_tail(struct list_head *neww, struct list_head *head)
  *
  * This function is added by me. It might be useful sometimes.
  */
-static inline void list_add_after(struct list_head* neww, struct list_head *next)
+static inline void list_add_after(struct list_head *neww, struct list_head *next)
 {
 	__list_add(neww, next, next->next);
 }
@@ -89,7 +89,7 @@ static inline void list_add_after(struct list_head* neww, struct list_head *next
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_del(struct list_head * prev, struct list_head * next)
+static inline void __list_del(struct list_head *prev, struct list_head *next)
 {
 	next->prev = prev;
 	prev->next = next;

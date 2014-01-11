@@ -32,4 +32,15 @@
 	(type *)( (char *)__mptr - OFFSET_OF(type,member) );})
 #endif
 
+/**
+ * MEMBER_OF - access the member of a structure at a certain offset
+ * @ptr:		the pointer to the struct
+ * @type:		the type of the member within the struct
+ * @offset:		the offset of the member within the struct
+ *
+ */
+#ifndef MEMBER_OF
+#define MEMBER_OF(ptr, type, offset) ((type *)((char *)ptr + offset))
+#endif
+
 #endif
