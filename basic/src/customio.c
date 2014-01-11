@@ -2,6 +2,11 @@
 #include <string.h>
 #include "customio.h"
 
+/*
+ * convenient macros for shortening code lines, will be undefined at the end
+ */
+#define cec customio_error_code
+
 int __customio_is_delim(char c, const char *delims, int ws) {
 	int i = 0;
 
@@ -18,7 +23,7 @@ int __customio_is_delim(char c, const char *delims, int ws) {
 	return 0;
 }
 
-int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int size, int *num, char *delim, int ignore) {
+cec __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int size, int *num, char *delim, int ignore) {
 	char *ptr1 = *ptr;
 	char *temp_ptr = NULL;
 	char temp_chr = 0;
@@ -99,7 +104,7 @@ int __customio_get_before_delim(FILE *stream, const char *delims, int ws, char *
 	return 0;
 }
 
-int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int size, int *num) {
+cec customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int size, int *num) {
 	int rv;
 	int n = 0;
 	char delim = '\0';
@@ -142,7 +147,7 @@ int customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int si
 	return 0;
 }
 
-int customio_eat_ws(FILE *stream, int *count) {
+cec customio_eat_ws(FILE *stream, int *count) {
 	char temp = ' ';
 	int temp_count = 0;
 
@@ -211,3 +216,8 @@ void customio_trim(char *str) {
 	customio_trim_before(str);
 	customio_trim_after(str);
 }
+
+/*
+ * undefining the convenient macros
+ */
+#undef cec

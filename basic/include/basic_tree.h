@@ -5,6 +5,14 @@
 #include "basic_general.h"
 #include "basic_list.h"
 
+/*
+ * Simple n-ary tree implementation.
+ *
+ * Based on GLib's n-ary tree. The tree structure implemented in this
+ * library should be constructed in the heap (in other words, nodes
+ * and data are built with dynamic memory allocation and destroy with
+ * memory deallocation).
+ */
 
 /*
  * convenient macros for shortening code lines, will be undefined at the end
@@ -59,7 +67,6 @@ typedef enum {
 typedef enum {
 	BASIC_TREE_INDEX_ERROR = -1
 } btec;
-
 
 /*
  * API functions
@@ -120,11 +127,8 @@ static inline void basic_tree_destroy_tree(btnode *node, btdcf func, btdca args)
  * private functions
  */
 btnode *__basic_tree_nth_child(btnode *parent, int pos);
-
 int __basic_tree_num_nodes(btnode *node);
-
 int __basic_tree_height(btnode *node);
-
 void __basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
 
 /*
