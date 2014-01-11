@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <basic_tree.h>
 
-void basic_node_insert(tnode *node, tnode *parent, int pos) {
+void basic_tree_insert(tnode *node, tnode *parent, int pos) {
 	tnode *ptr;
 
 	/* if this is the first child */
@@ -12,15 +12,15 @@ void basic_node_insert(tnode *node, tnode *parent, int pos) {
 
 	/* else */
 
-	ptr = tnode * __basic_node_nth_child(tnode *parent, pos);
+	ptr = tnode * __basic_tree_nth_child(tnode *parent, pos);
 	if (ptr == NULL)
 		return;
 
 	/* insert node */
 	if (pos < 0)
-		__basic_node_insert(node, ptr, ptr->next);
+		__basic_tree_insert(node, ptr, ptr->next);
 	else
-		__basic_node_insert(node, ptr->prev, ptr);
+		__basic_tree_insert(node, ptr->prev, ptr);
 
 	/* update parent's children pointer if necessary */
 	if (pos == 0) {
@@ -33,7 +33,7 @@ void basic_node_insert(tnode *node, tnode *parent, int pos) {
 	node->parent = parent;
 }
 
-tnode *__basic_node_nth_child(tnode *parent, int pos) {
+tnode *__basic_tree_nth_child(tnode *parent, int pos) {
 	tnode *ptr;
 	int i = 0;
 
@@ -55,7 +55,7 @@ tnode *__basic_node_nth_child(tnode *parent, int pos) {
 	return NULL;
 }
 
-int __basic_node_num_nodes(tnode *node) {
+int __basic_tree_num_nodes(tnode *node) {
 	tnode *ptr;
 	int num = 1;
 
@@ -64,12 +64,12 @@ int __basic_node_num_nodes(tnode *node) {
 
 	/* count nodes recursively */
 	list_for_each_entry(ptr, &(node->children), siblings) {
-		num += __basic_node_num_nodes(ptr);
+		num += __basic_tree_num_nodes(ptr);
 	}
 	return num;
 }
 
-int __basic_node_height(tnode *node) {
+int __basic_tree_height(tnode *node) {
 	tnode *ptr = node->children;
 	int max_height = 1;
 	int height;
@@ -78,22 +78,22 @@ int __basic_node_height(tnode *node) {
 		return 1;
 
 	list_for_each_entry(ptr, &(node->children), siblings) {
-		height = __basic_node_height(ptr);
+		height = __basic_tree_height(ptr);
 		if (max_height < height)
 			max_height = height;
 	}
 	return max_height+1;
 }
 
-void __basic_node_destroy_tree(tnode *node, int free_data) {
+void __basic_tree_destroy_tree(tnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
 	tnode *ptr;
 
-	if (basic_node_is_leaf(node)) {
-		basic_node_destroy(node, free_data);
+	if (basic_tree_is_leaf(node)) {
+		basic_tree_destroy(node, func, args);
 		return;
 	}
 
 	list_for_each_entry(ptr, &(node->children), siblings) {
-		__basic_node_destroy_tree(ptr, free_data);
+		__basic_tree_destroy_tree(ptr, func, args);
 	}
 }
