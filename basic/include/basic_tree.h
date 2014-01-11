@@ -68,6 +68,8 @@ static inline int basic_node_is_parent(tnode *parent, tnode *child);
 
 static inline int basic_node_is_ancestor(tnode *ancestor, tnode *descendant);
 
+static inline int basic_node_is_siblings(tnode *node1, tnode *node2);
+
 static inline int basic_node_is_root(tnode *node);
 
 static inline int basic_node_is_leaf(tnode *node);
@@ -76,7 +78,7 @@ static inline int basic_node_is_alone(tnode *node);
 
 static inline void basic_node_destroy(tnode *node, int free_data);
 
-void basic_node_destroy_tree(tnode *node, int free_data);
+static inline void basic_node_destroy_tree(tnode *node, int free_data);
 
 /* macros */
 #define basic_node_for_each_child(ptr, parent) \
@@ -247,6 +249,17 @@ static inline int basic_node_is_ancestor(tnode *ancestor, tnode *descendant) {
 	return 0;
 }
 
+static inline int basic_node_is_siblings(tnode *node1, tnode *node2) {
+	tnode *ptr;
+
+	list_for_each_entry(ptr, &(node1->parent->children), siblings) {
+		if (ptr == node2)
+			if (ptr != node1)
+				return 1;
+	}
+	return 0;
+}
+
 static inline int basic_node_is_root(tnode *node) {
 	return (node->parent == NULL);
 }
@@ -263,6 +276,10 @@ static inline void basic_node_destroy(tnode *node, int free_data) {
 	if (free_data)
 		free(node->data);
 	free(node);
+}
+
+static inline void basic_node_destroy_tree(tnode *node, int free_data) {
+	__basic_node_destroy_tree(node, free_data);
 }
 
 #endif
