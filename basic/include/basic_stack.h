@@ -32,6 +32,4 @@ static inline void __basic_stack_push(bs_elem *elem, struct basic_stack *stack);
 
 static inline bs_elem *__basic_stack_pop(struct basic_stack *stack);
 
-s
-
 #endif
