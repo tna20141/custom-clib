@@ -118,8 +118,8 @@ static void setup_tree(void **state) {
 /* fixture tear down function */
 static void teardown_tree(void **state) {
 	test_num = 0;
-	basic_tree_destroy_tree(test_root, cleanup_callback, (void *)4);
-	assert_int_equal(4, test_num);
+	basic_tree_destroy_tree(test_root, cleanup_callback, (void *)16);
+	assert_int_equal(16, test_num);
 }
 
 /*
@@ -160,6 +160,8 @@ static void test_insert_get_destroy_nodes(void **state) {
 	assert_int_equal(test_root, basic_tree_get_root(current));
 	assert_children(current, 4, 14,
 		"fourteen", 16, "sixteen", 15, "fifteen", 13, "thirteen");
+	assert_int_equal(NULL, basic_tree_nth_child(current, 4));
+	assert_int_equal(NULL, basic_tree_nth_child(current, -5));
 
 	current = basic_tree_ancestor(current, 2);
 	assert_int_equal(test_root, current);
@@ -204,6 +206,232 @@ static void test_insert_get_destroy_nodes(void **state) {
 	free(node);
 }
 
+static void test_child_position(void **state) {
+	btnode *current;
+
+	assert_int_equal(0, basic_tree_child_position(test_root));
+
+	current = basic_tree_nth_child(test_root, 2);
+	assert_int_equal(2, basic_tree_child_position(current));
+
+	current = basic_tree_prev_sibling(current);
+	assert_int_equal(1, basic_tree_child_position(current));
+
+	current = basic_tree_prev_sibling(current);
+	assert_int_equal(0, basic_tree_child_position(current));
+}
+
+static void test_depth(void **state) {
+	btnode *current;
+
+	assert_int_equal(1, basic_tree_depth(test_root));
+
+	current = basic_tree_nth_child(test_root, 1);
+	assert_int_equal(2, basic_tree_depth(current));
+
+	current = basic_tree_prev_sibling(current);
+	current = basic_tree_nth_child(
+		basic_tree_nth_child(current, -1), 2
+	);
+	assert_int_equal(4, basic_tree_depth(current));
+}
+
+static void test_num_children(void **state) {
+	btnode *current;
+
+	assert_int_equal(3, basic_tree_num_children(test_root));
+
+	current = basic_tree_nth_child(test_root, 1);
+	assert_int_equal(0, basic_tree_num_children(current));
+
+	current = basic_tree_prev_sibling(current);
+	assert_int_equal(2, basic_tree_num_children(current));
+
+	current = basic_tree_nth_child(current, 1);
+	assert_int_equal(4, basic_tree_num_children(current));
+}
+
+static void test_num_nodes(void **state) {
+	btnode *current;
+
+	assert_int_equal(16, basic_tree_num_nodes(test_root));
+	assert_int_equal(0, basic_tree_num_nodes(NULL));
+
+	current = basic_tree_nth_child(test_root, 0);
+	assert_int_equal(7, basic_tree_num_nodes(current));
+
+	current = basic_tree_next_sibling(current);
+	assert_int_equal(1, basic_tree_num_nodes(current));
+}
+
+static void test_height(void **state) {
+	btnode *current;
+
+	assert_int_equal(4, basic_tree_height(test_root));
+	assert_int_equal(0, basic_tree_height(NULL));
+
+	current = basic_tree_nth_child(test_root, 0);
+	assert_int_equal(3, basic_tree_height(current));
+
+	current = basic_tree_next_sibling(current);
+	assert_int_equal(1, basic_tree_height(current));
+}
+
+static void test_is_parent(void **state) {
+	btnode *current;
+
+	assert_int_equal(0, basic_tree_is_parent(NULL, test_root));
+
+	current = basic_tree_nth_child(test_root, 0);
+	assert_int_equal(1, basic_tree_is_parent(test_root, current));
+	assert_int_equal(0, basic_tree_is_parent(current, current));
+	assert_int_equal(0, basic_tree_is_parent(current, test_root));
+
+	current = basic_tree_nth_child(current, 1);
+	assert_int_equal(0, basic_tree_is_parent(current, test_root));
+	assert_int_equal(0, basic_tree_is_parent(
+		basic_tree_nth_child(test_root, 2), current
+	));
+}
+
+static void test_is_ancestor(void **state) {
+	btnode *current;
+
+	assert_int_equal(0, basic_tree_is_ancestor(NULL, test_root));
+
+	current = basic_tree_nth_child(test_root, 0);
+	assert_int_equal(1, basic_tree_is_ancestor(test_root, current));
+	assert_int_equal(0, basic_tree_is_ancestor(current, current));
+	assert_int_equal(0, basic_tree_is_ancestor(current, test_root));
+	assert_int_equal(0, basic_tree_is_ancestor(NULL, current));
+
+	current = basic_tree_nth_child(current, 1);
+	assert_int_equal(1, basic_tree_is_ancestor(test_root, current));
+	assert_int_equal(0, basic_tree_is_ancestor(
+		basic_tree_nth_child(test_root, 2), current
+	));
+
+	current = basic_tree_nth_child(current, 2);
+	assert_int_equal(1, basic_tree_is_ancestor(test_root, current));
+	assert_int_equal(1, basic_tree_is_ancestor(
+		basic_tree_nth_child(test_root, 0), current
+	));
+}
+
+static void test_is_siblings(void **state) {
+	btnode *current1;
+	btnode *current2;
+
+	assert_int_equal(0, basic_tree_is_siblings(test_root, test_root));
+
+	current1 = basic_tree_nth_child(test_root, 0);
+	current2 = basic_tree_nth_child(test_root, -1);
+	assert_int_equal(1, basic_tree_is_siblings(current1, current2));
+	assert_int_equal(1, basic_tree_is_siblings(current2, current1));
+	assert_int_equal(0, basic_tree_is_siblings(current1, current1));
+	assert_int_equal(0, basic_tree_is_siblings(test_root, current2));
+
+	current2 = basic_tree_prev_sibling(current2);
+	assert_int_equal(1, basic_tree_is_siblings(current1, current2));
+
+	current1 = basic_tree_nth_child(current1, 0);
+	assert_int_equal(0, basic_tree_is_siblings(current1, current2));
+
+	current2 = basic_tree_nth_child(basic_tree_next_sibling(current2), 0);
+	assert_int_equal(0, basic_tree_is_siblings(current1, current2));
+}
+
+static void test_is_root(void **state) {
+	btnode *current;
+	sd *data;
+	btnode *node;
+
+	assert_int_equal(1, basic_tree_is_root(test_root));
+	assert_int_equal(0, basic_tree_is_root(NULL));
+
+	current = basic_tree_nth_child(test_root, 0);
+	assert_int_equal(0, basic_tree_is_root(current));
+
+	current = basic_tree_next_sibling(current);
+	assert_int_equal(0, basic_tree_is_root(current));
+
+	BUILD_NODE(17, "seventeen");
+	assert_int_equal(1, basic_tree_is_root(node));
+	free(data);
+	free(node);
+}
+
+static void test_is_leaf(void **state) {
+	btnode *current;
+	sd *data;
+	btnode *node;
+
+	assert_int_equal(0, basic_tree_is_leaf(test_root));
+	assert_int_equal(0, basic_tree_is_leaf(NULL));
+
+	current = basic_tree_nth_child(test_root, -2);
+	assert_int_equal(1, basic_tree_is_leaf(current));
+
+	current = basic_tree_prev_sibling(current);
+	assert_int_equal(0, basic_tree_is_leaf(current));
+
+	current = basic_tree_nth_child(current, 0);
+	assert_int_equal(1, basic_tree_is_leaf(current));
+
+	BUILD_NODE(17, "seventeen");
+	assert_int_equal(1, basic_tree_is_leaf(node));
+	free(data);
+	free(node);
+}
+
+static void test_is_alone(void **state) {
+	btnode *current;
+	sd *data;
+	btnode *node;
+
+	assert_int_equal(0, basic_tree_is_alone(test_root));
+	assert_int_equal(0, basic_tree_is_alone(NULL));
+
+	current = basic_tree_nth_child(test_root, -2);
+	assert_int_equal(0, basic_tree_is_alone(current));
+
+	current = basic_tree_prev_sibling(current);
+	assert_int_equal(0, basic_tree_is_alone(current));
+
+	current = basic_tree_nth_child(current, 0);
+	assert_int_equal(0, basic_tree_is_alone(current));
+
+	BUILD_NODE(17, "seventeen");
+	assert_int_equal(1, basic_tree_is_alone(node));
+	free(data);
+	free(node);
+}
+
+static void test_unlink(void **state) {
+	btnode *current;
+	btnode *node;
+
+	current = basic_tree_nth_child(test_root, 2);
+	assert_int_equal(current, basic_tree_unlink(current));
+
+	assert_children(test_root, 2, 3, "three", 2, "two");
+	assert_int_equal(1, basic_tree_is_root(current));
+	assert_children(current, 1, 5, "five");
+
+	current = basic_tree_nth_child(current, -1);
+	node = basic_tree_unlink(basic_tree_nth_child(current, 1));
+	assert_children(current, 4, 10, "ten", 7, "seven", 9, "nine", 8, "eight");
+
+	assert_node(node, 6, "six");
+	assert_int_equal(1, basic_tree_is_alone(node));
+	basic_tree_unlink(node);
+	assert_int_equal(1, basic_tree_is_alone(node));
+	free(((sd *)node->data)->str);
+	basic_tree_destroy(node, NULL, (void *)current);
+
+	basic_tree_destroy_tree(current, cleanup_callback, (void *)0);
+}
+
 /*
  * private functions
  */
@@ -240,7 +468,19 @@ void cleanup_callback(void *node_data, void *data) {
 int main(void) {
 	const UnitTest tests[] = {
 		unit_test(test_new),
-		unit_test_setup_teardown(test_insert_get_destroy_nodes, setup_tree, teardown_tree)
+		unit_test_setup_teardown(test_insert_get_destroy_nodes, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_child_position, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_depth, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_num_children, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_num_nodes, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_height, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_is_parent, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_is_ancestor, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_is_siblings, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_is_root, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_is_leaf, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_is_alone, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_unlink, setup_tree, teardown_tree)
 	};
 
 	return run_tests(tests);

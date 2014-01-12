@@ -83,7 +83,7 @@ static inline void basic_tree_append(btnode *node, btnode *parent);
 
 static inline void basic_tree_prepend(btnode *node, btnode *parent);
 
-static inline void basic_tree_unlink(btnode *node);
+static inline btnode *basic_tree_unlink(btnode *node);
 
 static inline btnode *basic_tree_get_root(btnode *node);
 
@@ -167,9 +167,10 @@ static inline void basic_tree_prepend(btnode *node, btnode *parent) {
 	node->parent = parent;
 }
 
-static inline void basic_tree_unlink(btnode *node) {
+static inline btnode *basic_tree_unlink(btnode *node) {
 	node->parent = NULL;
 	list_del(&(node->siblings));
+	return node;
 }
 
 static inline btnode *basic_tree_get_root(btnode *node) {
@@ -283,6 +284,8 @@ static inline int basic_tree_height(btnode *root) {
 }
 
 static inline int basic_tree_is_parent(btnode *parent, btnode *child) {
+	if (child->parent == NULL)
+		return 0;
 	return (child->parent == parent);
 }
 
@@ -300,6 +303,9 @@ static inline int basic_tree_is_ancestor(btnode *ancestor, btnode *descendant) {
 static inline int basic_tree_is_siblings(btnode *node1, btnode *node2) {
 	btnode *ptr;
 
+	if (node1->parent == NULL || node2->parent == NULL)
+		return 0;
+
 	list_for_each_entry(ptr, &(node1->parent->children), siblings) {
 		if (ptr == node2)
 			if (ptr != node1)
@@ -309,10 +315,14 @@ static inline int basic_tree_is_siblings(btnode *node1, btnode *node2) {
 }
 
 static inline int basic_tree_is_root(btnode *node) {
+	if (node == NULL)
+		return 0;
 	return (node->parent == NULL);
 }
 
 static inline int basic_tree_is_leaf(btnode *node) {
+	if (node == NULL)
+		return 0;
 	return (list_empty(&(node->children)));
 }
 
