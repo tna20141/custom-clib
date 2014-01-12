@@ -17,25 +17,31 @@
 btec basic_tree_insert(btnode *node, btnode *parent, int pos) {
 	btnode *ptr;
 
-	/* if this is the first child */
-	if (basic_tree_is_leaf(parent)) {
-		list_add(&(node->siblings), &(parent->children));
-		goto ret;
+	/* special cases */
+	if (pos == 0) {
+		basic_tree_prepend(node, parent);
+		return 0;
+	}
+	if (pos == -1) {
+		basic_tree_append(node, parent);
+		return 0;
 	}
 
-	/* else */
+	/* other cases */
+	if (pos < 0)
+		ptr = __basic_tree_nth_child(parent, pos+1);
+	else
+		ptr = __basic_tree_nth_child(parent, pos-1);
 
-	ptr = __basic_tree_nth_child(parent, pos);
+	/* can't find the right position, return error */
 	if (ptr == NULL)
 		return BASIC_TREE_INDEX_ERROR;
 
 	/* insert node */
 	if (pos < 0)
-		list_add_after(&(node->siblings), &(ptr->siblings));
-	else
 		list_add_after(&(node->siblings), ptr->siblings.prev);
-
-	ret:
+	else
+		list_add_after(&(node->siblings), &(ptr->siblings));
 
 	/* set new node's parent */
 	node->parent = parent;
@@ -97,14 +103,10 @@ int __basic_tree_height(btnode *node) {
 void __basic_tree_destroy_tree(btnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
 	btnode *ptr;
 
-	if (basic_tree_is_leaf(node)) {
-		basic_tree_destroy(node, func, args);
-		return;
-	}
-
 	list_for_each_entry(ptr, &(node->children), siblings) {
 		__basic_tree_destroy_tree(ptr, func, args);
 	}
+	basic_tree_destroy(node, func, args);
 }
 
 /*
