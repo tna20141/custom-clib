@@ -89,6 +89,23 @@ $(BIN_DIR)/basic_tree_test : $(TREE_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
 basic_tree_test : $(BIN_DIR)/basic_tree_test
 	$(BIN_DIR)/basic_tree_test
 
+# basic stack test
+
+STACK_CCFLAGS =
+
+STACK_SRCS =
+
+STACK_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_stack.h
+
+STACK_FILES = $(STACK_SRCS) $(STACK_HEADERS) $(TEST_DIR)/basic_stack_test.c
+
+$(BIN_DIR)/basic_stack_test : $(STACK_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
+	$(CC) $(CMOCKA_CCFLAGS) $(STACK_SRCS) $(CMOCKA_SRC) $(TEST_DIR)/basic_stack_test.c \
+		$(STACK_CCFLAGS) -I $(INC_DIR) -o $@
+
+basic_stack_test : $(BIN_DIR)/basic_stack_test
+	$(BIN_DIR)/basic_stack_test
+
 #
 # end of Cmocka test
 #

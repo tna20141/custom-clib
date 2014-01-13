@@ -1,8 +1,6 @@
 #ifndef _CUSTOMIO_H
 #define _CUSTOMIO_H
 
-#include <stdio.h>
-
 /*
  * Library for custom IO functions using file streams.
  *
@@ -12,6 +10,8 @@
  *
  * Note: current version only supports ASCII character set
  */
+
+#include <stdio.h>
 
 /*
  * convenient macros for shortening code lines, will be undefined at the end

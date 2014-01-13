@@ -6,6 +6,8 @@
  *
  */
 
+#include "basic_general.h"
+
 struct basic_stack_list_head {
 	struct basic_stack_list_head *next;
 };

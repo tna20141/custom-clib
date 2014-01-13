@@ -1,6 +1,10 @@
 #ifndef _BASIC_GENERAL_H
 #define _BASIC_GENERAL_H
 
+/*
+ * Contains general macros and utilities
+ */
+
 #ifndef NULL
 #define NULL 0
 #endif

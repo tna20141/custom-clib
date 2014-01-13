@@ -485,3 +485,8 @@ int main(void) {
 
 	return run_tests(tests);
 }
+
+/*
+ * undefine convenient macros
+ */
+#undef BUILD_NODE

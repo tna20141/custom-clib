@@ -1,8 +1,6 @@
 #ifndef _BASIC_LIST_H
 #define _BASIC_LIST_H
 
-#include "basic_general.h"
-
 /*
  * Simple doubly linked list implementation.
  *
@@ -12,6 +10,8 @@
  * generate better code by using them directly rather than
  * using the generic single-entry routines.
  */
+
+#include "basic_general.h"
 
 struct list_head {
 	struct list_head *next, *prev;

@@ -1,10 +1,6 @@
 #ifndef _BASIC_TREE_H
 #define _BASIC_TREE_H
 
-#include <stdlib.h>
-#include "basic_general.h"
-#include "basic_list.h"
-
 /*
  * Simple n-ary tree implementation.
  *
@@ -13,6 +9,10 @@
  * and data are built with dynamic memory allocation and destroy with
  * memory deallocation).
  */
+
+#include <stdlib.h>
+#include "basic_general.h"
+#include "basic_list.h"
 
 /*
  * convenient macros for shortening code lines, will be undefined at the end
