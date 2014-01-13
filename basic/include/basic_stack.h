@@ -27,6 +27,8 @@ static inline int basic_stack_is_empty(struct basic_stack *stack);
 
 static inline int basic_stack_num_elem(struct basic_stack *stack);
 
+void basic_stack_destroy(struct basic_stack *stack);
+
 /*
  * API macros
  */
@@ -39,8 +41,29 @@ static inline int basic_stack_num_elem(struct basic_stack *stack);
 	((elem == NULL) ? NULL : CONTAINER_OF(elem, type, member)); })
 
 #define BASIC_STACK_PEEK(type, member, stack) ({	\
-	bs_elem *lem = __basic_stack_peek(stack);		\									\
+	bs_elem *lem = __basic_stack_peek(stack);		\
 	((elem == NULL) ? NULL : CONTAINER_OF(elem, type, member)); })
+
+#define BASIC_STACK_FOREACH(pos, stack, member)		\
+	for(pos = CONTAINER_OF((stack)->top, typeof(*pos), member);	\
+		pos->member.next != NULL;		\
+		pos = CONTAINER_OF(pos->member.next, typeof(*pos), member))
+
+#define BASIC_STACK_FOREACH_SAFE(pos, n, stack, member)		\
+	for(pos = CONTAINER_OF((stack)->top, typeof(*pos), member),	\
+		n = CONTAINER_OF(stack->top.next, typeof(*pos), member)		\
+		pos != NULL;		\
+		pos = n, n = CONTAINER_OF(n->member.next, typeof(*n), member))
+
+#define BASIC_STACK_DESTROY(type, member, stack, func, args) ({		\
+	type *entry;		\
+	type *temp;			\
+	BASIC_STACK_FOREACH_SAFE(entry, temp, stack, member) {	\
+		if (func != NULL)		\
+			func(entry, args);		\
+		else		\
+			free(entry);		\
+	}; })
 
 /*
  * private functions
@@ -73,7 +96,7 @@ static inline void __basic_stack_push(bs_elem *elem, struct basic_stack *stack) 
 
 static inline bs_elem *__basic_stack_pop(struct basic_stack *stack) {
 	bs_elem *popped = stack->top;
-	if (num > 0) {
+	if (stack->num > 0) {
 		stack->top = popped->next;
 		popped->next = NULL;
 		stack->num--;

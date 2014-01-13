@@ -17,8 +17,23 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <basic_stack.h>
+
+struct entry {
+	int data;
+	bs_elem next;
+};
 
 static void test_init(void **state) {
+	int i = 0;
+	struct entry *a, b;
+	struct basic_stack stack;
+	basic_stack_init(&stack);
+	BASIC_STACK_FOREACH(a, &stack, next) {
+		i++;
+	}
+	// BASIC_STACK_DESTROY(struct entry, next, &stack, NULL, NULL);
+	assert_int_equal(0, i);
 	return;
 }
 

@@ -102,8 +102,9 @@ int __basic_tree_height(btnode *node) {
 
 void __basic_tree_destroy_tree(btnode *node, basic_tree_data_clean_func func, basic_tree_data_clean_args args) {
 	btnode *ptr;
+	btnode *temp;
 
-	list_for_each_entry(ptr, &(node->children), siblings) {
+	list_for_each_entry_safe(ptr, temp, &(node->children), siblings) {
 		__basic_tree_destroy_tree(ptr, func, args);
 	}
 	basic_tree_destroy(node, func, args);
