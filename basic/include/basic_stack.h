@@ -44,9 +44,43 @@ static inline int basic_stack_num_elem(struct basic_stack *stack);
  * private functions
  */
 static inline void __basic_stack_push(bs_elem *elem, struct basic_stack *stack);
-
 static inline bs_elem *__basic_stack_pop(struct basic_stack *stack);
-
 static inline bs_elem *__basic_stack_peek(struct basic_stack *stack);
+
+/*
+ * inline function definitions
+ */
+static inline void basic_stack_init(struct basic_stack *stack) {
+	stack->top = NULL;
+	stack->num = 0;
+}
+
+static inline int basic_stack_is_empty(struct basic_stack *stack) {
+	return (stack->num == 0);
+}
+
+static inline int basic_stack_num_elem(struct basic_stack *stack) {
+	return (stack->num);
+}
+
+static inline void __basic_stack_push(bs_elem *elem, struct basic_stack *stack) {
+	elem->next = stack->top;
+	stack->top = elem;
+	stack->num++;
+}
+
+static inline bs_elem *__basic_stack_pop(struct basic_stack *stack) {
+	bs_elem *popped = stack->top;
+	if (num > 0) {
+		stack->top = popped->next;
+		popped->next = NULL;
+		stack->num--;
+	}
+	return popped;
+}
+
+static inline bs_elem *__basic_stack_peek(struct basic_stack *stack) {
+	return (stack->top);
+}
 
 #endif
