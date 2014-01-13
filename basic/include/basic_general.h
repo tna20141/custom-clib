@@ -33,18 +33,40 @@
 #ifndef CONTAINER_OF
 #define CONTAINER_OF(ptr, type, member) ({                      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-	(type *)( (char *)__mptr - OFFSET_OF(type,member) );})
+	(type *)( (char *)__mptr - OFFSET_OF(type,member) ); })
+#endif
+
+/**
+ * CONTAINER_OF_SAFE - same as CONTAINER_OF, but also takes care of NULL ptr
+ * @ptr:        the pointer to the member
+ * @type:       the type of the container struct this is embedded in
+ * @member:     the name of the member within the struct
+ *
+ */
+#ifndef CONTAINER_OF_SAFE
+#define CONTAINER_OF_SAFE(ptr, type, member) ((ptr) ? CONTAINER_OF(ptr, type, member) : NULL)
 #endif
 
 /**
  * MEMBER_OF - access the member of a structure at a certain offset
  * @ptr:		the pointer to the struct
- * @type:		the type of the member within the struct
+ * @mtype:		the type of the member within the struct
  * @offset:		the offset of the member within the struct
  *
  */
 #ifndef MEMBER_OF
-#define MEMBER_OF(ptr, type, offset) ((type *)((char *)ptr + offset))
+#define MEMBER_OF(ptr, mtype, offset) ((mtype *)((char *)ptr + offset))
 #endif
+
+/**
+ * MEMBER_OF_SAFE - same as MEMBER_OF, but also takes care of NULL ptr
+ * @ptr:		the pointer to the struct
+ * @mtype:		the type of the member within the struct
+ * @offset:		the offset of the member within the struct
+ *
+ */
+#ifndef MEMBER_OF_SAFE
+#define MEMBER_OF_SAFE(ptr, mtype, offset) ((ptr) ? MEMBER_OF(ptr, mtype, offset) : NULL)
+ #endif
 
 #endif
