@@ -106,6 +106,23 @@ $(BIN_DIR)/basic_stack_test : $(STACK_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
 basic_stack_test : $(BIN_DIR)/basic_stack_test
 	$(BIN_DIR)/basic_stack_test
 
+# basic queue test
+
+QUEUE_CCFLAGS =
+
+QUEUE_SRCS =
+
+QUEUE_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_queue.h
+
+QUEUE_FILES = $(QUEUE_SRCS) $(QUEUE_HEADERS) $(TEST_DIR)/basic_queue_test.c
+
+$(BIN_DIR)/basic_queue_test : $(QUEUE_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
+	$(CC) $(CMOCKA_CCFLAGS) $(QUEUE_SRCS) $(CMOCKA_SRC) $(TEST_DIR)/basic_queue_test.c \
+		$(QUEUE_CCFLAGS) -I $(INC_DIR) -o $@
+
+basic_queue_test : $(BIN_DIR)/basic_queue_test
+	$(BIN_DIR)/basic_queue_test
+
 #
 # end of Cmocka test
 #

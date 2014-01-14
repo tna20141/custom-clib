@@ -69,4 +69,16 @@
 #define MEMBER_OF_SAFE(ptr, mtype, offset) ((ptr) ? MEMBER_OF(ptr, mtype, offset) : NULL)
  #endif
 
+/**
+ * SWAP - swap 2 instances of the same type
+ * @inst1:		instance number 1
+ * @inst2:		instance number 2
+ *
+ */
+#ifndef SWAP
+#define SWAP(inst1, inst2) ({		\
+	typeof(inst1) __tmp_inst;		\
+	__tmp_inst = inst1; inst1 = inst2; inst2 = __tmp_inst; })
+#endif
+
 #endif
