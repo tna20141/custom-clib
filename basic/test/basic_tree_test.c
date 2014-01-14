@@ -117,8 +117,11 @@ static void setup_tree(void **state) {
 
 /* fixture tear down function */
 static void teardown_tree(void **state) {
+	int temp;
+
 	test_num = 0;
-	basic_tree_destroy_tree(test_root, cleanup_callback, (void *)16);
+	temp = 16;
+	basic_tree_destroy_tree(test_root, cleanup_callback, (void *)&temp);
 	assert_int_equal(16, test_num);
 }
 
@@ -410,6 +413,7 @@ static void test_is_alone(void **state) {
 static void test_unlink(void **state) {
 	btnode *current;
 	btnode *node;
+	int temp;
 
 	current = basic_tree_nth_child(test_root, 2);
 	assert_int_equal(current, basic_tree_unlink(current));
@@ -429,7 +433,8 @@ static void test_unlink(void **state) {
 	free(((sd *)node->data)->str);
 	basic_tree_destroy(node, NULL, (void *)current);
 
-	basic_tree_destroy_tree(current, cleanup_callback, (void *)0);
+	temp = 0;
+	basic_tree_destroy_tree(current, cleanup_callback, (void *)&temp);
 }
 
 /*
@@ -458,8 +463,9 @@ void assert_children(btnode *parent, ...) {
 }
 
 void cleanup_callback(void *node_data, void *data) {
-	if (((sd *)node_data)->n == (int64_t)data)
-		test_num = (int64_t)data;
+	int d = *((int *)data);
+	if (((sd *)node_data)->n == d)
+		test_num = d;
 	free(((sd *)node_data)->str);
 	free(node_data);
 }

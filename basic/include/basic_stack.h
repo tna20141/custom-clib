@@ -8,6 +8,9 @@
 
 #include "basic_general.h"
 
+/*
+ * type definitions
+ */
 struct basic_stack_list_head {
 	struct basic_stack_list_head *next;
 };
@@ -58,7 +61,7 @@ static inline int basic_stack_num_elem(struct basic_stack *stack);
 	BASIC_STACK_FOREACH_SAFE(__entry, __temp, stack, member) {	\
 		__basic_stack_pop(stack);		\
 		if (func != NULL)		\
-			func(__entry, args);		\
+			((void (*)(type *, void *))func)(__entry, args);		\
 		else		\
 			free(__entry);		\
 	}; })
