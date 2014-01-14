@@ -17,6 +17,8 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <stdlib.h>
+#include <string.h>
 #include <basic_general.h>
 #include <basic_stack.h>
 
@@ -25,6 +27,23 @@ struct entry {
 	char *str;
 	bs_elem next;
 };
+
+int test_num1;
+int test_num2;
+
+static void cleanup_func(struct entry *e, void *args) {
+	int data = *((int *)args);
+
+	test_num1 = 1;
+	if (e->num == data%10)
+		test_num2 = e->num;
+	free (e->str);
+
+	if (e->num == data/10) {
+		test_num1 = 2;
+		free(e);
+	}
+}
 
 static void verify_stack(struct basic_stack *stack, int n, ...) {
 	int i;
@@ -233,6 +252,64 @@ static void test_num_elem(void **state) {
 	assert_int_equal(0, basic_stack_num_elem(&stack));
 }
 
+static void test_destroy(void **state) {
+	struct basic_stack stack;
+	struct entry e1, e2, e3, e4, *e;
+	int temp = 1;
+
+	basic_stack_init(&stack);
+	e1.num = 1;
+	e1.str = (char *)malloc(sizeof("one")+1);
+	strcpy(e1.str, "one");
+	e2.num = 2;
+	e2.str = (char *)malloc(sizeof("two")+1);
+	strcpy(e2.str, "two");
+	e3.num = 3;
+	e3.str = (char *)malloc(sizeof("three")+1);
+	strcpy(e3.str, "three");
+	e4.num = 4;
+	e4.str = (char *)malloc(sizeof("four")+1);
+	strcpy(e4.str, "four");
+	e = (struct entry *)malloc(sizeof(struct entry));
+	e->num = 5;
+	e->str = (char *)malloc(sizeof("five")+1);
+	strcpy(e->str, "five");
+
+	BASIC_STACK_DESTROY(struct entry, &stack, next, cleanup_func, (void *)&temp);
+	assert_int_equal(0, test_num1);
+	assert_int_equal(0, test_num2);
+	assert_int_equal(1, basic_stack_is_empty(&stack));
+
+	BASIC_STACK_PUSH(&e1, &stack, next);
+	BASIC_STACK_DESTROY(struct entry, &stack, next, cleanup_func, (void *)&temp);
+	assert_int_equal(1, test_num1);
+	assert_int_equal(1, test_num2);
+	assert_int_equal(NULL, stack.top.next);
+	assert_int_equal(1, basic_stack_is_empty(&stack));
+
+	BASIC_STACK_PUSH(e, &stack, next);
+	BASIC_STACK_PUSH(&e2, &stack, next);
+	BASIC_STACK_PUSH(&e3, &stack, next);
+	BASIC_STACK_PUSH(&e4, &stack, next);
+	temp = 53;
+	BASIC_STACK_DESTROY(struct entry, &stack, next, cleanup_func, (void *)&temp);
+	assert_int_equal(3, test_num2);
+	assert_int_equal(2, test_num1);
+	assert_int_equal(NULL, stack.top.next);
+	assert_int_equal(1, basic_stack_is_empty(&stack));
+
+	e = (struct entry *)malloc(sizeof(struct entry));
+	e->num = 5;
+	e->str = (char *)malloc(sizeof("five")+1);
+	strcpy(e->str, "five");
+
+	test_num1 = 0;
+	BASIC_STACK_PUSH(e, &stack, next);
+	BASIC_STACK_DESTROY(struct entry, &stack, next, NULL, NULL);
+	assert_int_equal(0, test_num1);
+	assert_int_equal(1, basic_stack_is_empty(&stack));
+}
+
 /* main function */
 int main(void) {
 	const UnitTest tests[] = {
@@ -240,7 +317,8 @@ int main(void) {
 		unit_test(test_push_pop_peek),
 		unit_test(test_is_empty),
 		unit_test(test_foreach),
-		unit_test(test_num_elem)
+		unit_test(test_num_elem),
+		unit_test(test_destroy)
 		
 	};
 

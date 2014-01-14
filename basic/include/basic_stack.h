@@ -31,16 +31,16 @@ static inline int basic_stack_num_elem(struct basic_stack *stack);
  * API macros
  */
 #define BASIC_STACK_PUSH(entry, stack, member) ({		\
-	const size_t offset = OFFSET_OF(typeof(*entry), member);		\
-	__basic_stack_push(MEMBER_OF(entry, typeof((entry)->member), offset), stack); })
+	const size_t __offset = OFFSET_OF(typeof(*entry), member);		\
+	__basic_stack_push(MEMBER_OF(entry, typeof((entry)->member), __offset), stack); })
 
 #define BASIC_STACK_POP(type, stack, member) ({		\
-	bs_elem *elem = __basic_stack_pop(stack);		\
-	CONTAINER_OF_SAFE(elem, type, member); })
+	bs_elem *__elem = __basic_stack_pop(stack);		\
+	CONTAINER_OF_SAFE(__elem, type, member); })
 
 #define BASIC_STACK_PEEK(type, stack, member) ({	\
-	bs_elem *elem = __basic_stack_peek(stack);		\
-	CONTAINER_OF_SAFE(elem, type, member); })
+	bs_elem *__elem = __basic_stack_peek(stack);		\
+	CONTAINER_OF_SAFE(__elem, type, member); })
 
 #define BASIC_STACK_FOREACH(pos, stack, member)		\
 	for(pos = CONTAINER_OF_SAFE((stack)->top.next, typeof(*pos), member);	\
@@ -54,13 +54,13 @@ static inline int basic_stack_num_elem(struct basic_stack *stack);
 		pos = n, n = (n == NULL) ? NULL : CONTAINER_OF_SAFE(n->member.next, typeof(*n), member))
 
 #define BASIC_STACK_DESTROY(type, stack, member, func, args) ({		\
-	type *entry, *temp;		\
-	BASIC_STACK_FOREACH_SAFE(entry, temp, stack, member) {	\
+	type *__entry, *__temp;		\
+	BASIC_STACK_FOREACH_SAFE(__entry, __temp, stack, member) {	\
 		__basic_stack_pop(stack);		\
 		if (func != NULL)		\
-			func(entry, args);		\
+			func(__entry, args);		\
 		else		\
-			free(entry);		\
+			free(__entry);		\
 	}; })
 
 /*
