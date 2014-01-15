@@ -160,6 +160,112 @@ static void test_is_empty(void **state) {
 	assert_int_equal(0, basic_queue_is_empty(&queue));
 }
 
+static void test_foreach(void **state) {
+	struct basic_queue queue;
+	struct entry e1, e2, e3, e4, *pos, *tmp;
+	int n = 0;
+
+	basic_queue_init(&queue);
+	e1.num = 1;
+	e2.num = 2;
+	e3.num = 3;
+	e4.num = 4;
+
+	BASIC_QUEUE_FOREACH_HEAD(pos, &queue, ptrs)
+		n++;
+	assert_int_equal(0, n);
+	BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, tmp, &queue, ptrs)
+		n++;
+	assert_int_equal(0, n);
+	BASIC_QUEUE_FOREACH_TAIL(pos, &queue, ptrs)
+		n++;
+	assert_int_equal(0, n);
+	BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, tmp, &queue, ptrs)
+		n++;
+	assert_int_equal(0, n);
+	BASIC_QUEUE_FOREACH(pos, &queue, ptrs)
+		n++;
+	assert_int_equal(0, n);
+	BASIC_QUEUE_FOREACH_SAFE(pos, tmp, &queue, ptrs)
+		n++;
+	assert_int_equal(0, n);
+
+	BASIC_QUEUE_PUSH(&e1, &queue, ptrs);
+	BASIC_QUEUE_FOREACH_HEAD(pos, &queue, ptrs)
+		n += pos->num;
+	assert_int_equal(1, n);
+	BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, tmp, &queue, ptrs)
+		n += pos->num;
+	assert_int_equal(2, n);
+	BASIC_QUEUE_FOREACH_TAIL(pos, &queue, ptrs)
+		n += pos->num;
+	assert_int_equal(3, n);
+	BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, tmp, &queue, ptrs)
+		n += pos->num;
+	assert_int_equal(4, n);
+	BASIC_QUEUE_FOREACH(pos, &queue, ptrs)
+		n += pos->num;
+	assert_int_equal(5, n);
+	BASIC_QUEUE_FOREACH_SAFE(pos, tmp, &queue, ptrs)
+		n += pos->num;
+	assert_int_equal(6, n);
+
+	BASIC_QUEUE_PUSH(&e2, &queue, ptrs);
+	BASIC_QUEUE_PUSH(&e3, &queue, ptrs);
+	BASIC_QUEUE_PUSH(&e4, &queue, ptrs);
+	n = 0;
+	BASIC_QUEUE_FOREACH_HEAD(pos, &queue, ptrs) {
+		n++;
+		assert_int_equal(n, pos->num);
+	}
+	n = 0;
+	BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, tmp, &queue, ptrs) {
+		n++;
+		assert_int_equal(n, pos->num);
+	}
+	n = 5;
+	BASIC_QUEUE_FOREACH_TAIL(pos, &queue, ptrs) {
+		n--;
+		assert_int_equal(n, pos->num);
+	}
+	n = 5;
+	BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, tmp, &queue, ptrs) {
+		n--;
+		assert_int_equal(n, pos->num);
+	}
+	n = 0;
+	BASIC_QUEUE_FOREACH(pos, &queue, ptrs) {
+		n++;
+		assert_int_equal(n, pos->num);
+	}
+	n = 0;
+	BASIC_QUEUE_FOREACH_SAFE(pos, tmp, &queue, ptrs) {
+		n++;
+		assert_int_equal(n, pos->num);
+	}
+
+	BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, tmp, &queue, ptrs) {
+		BASIC_QUEUE_POP_HEAD(struct entry, &queue, ptrs);
+	}
+	assert_int_equal(1, basic_queue_is_empty(&queue));
+
+	BASIC_QUEUE_PUSH(&e2, &queue, ptrs);
+	BASIC_QUEUE_PUSH(&e3, &queue, ptrs);
+	BASIC_QUEUE_PUSH(&e4, &queue, ptrs);
+	BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, tmp, &queue, ptrs) {
+		BASIC_QUEUE_POP_TAIL(struct entry, &queue, ptrs);
+	}
+	assert_int_equal(1, basic_queue_is_empty(&queue));
+
+	BASIC_QUEUE_PUSH(&e2, &queue, ptrs);
+	BASIC_QUEUE_PUSH(&e3, &queue, ptrs);
+	BASIC_QUEUE_PUSH(&e4, &queue, ptrs);
+	BASIC_QUEUE_FOREACH_SAFE(pos, tmp, &queue, ptrs) {
+		BASIC_QUEUE_POP(struct entry, &queue, ptrs);
+	}
+	assert_int_equal(1, basic_queue_is_empty(&queue));
+}
+
 static void test_num_elem(void **state) {
 	struct basic_queue queue;
 	struct entry e1, e2, e3, e4;
@@ -270,6 +376,7 @@ int main(void) {
 		unit_test(test_push_pop_peek),
 		unit_test(test_is_empty),
 		unit_test(test_num_elem),
+		unit_test(test_foreach),
 		unit_test(test_destroy)
 	};
 

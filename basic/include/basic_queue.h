@@ -77,14 +77,14 @@ static inline struct list_head *__basic_queue_peek(struct basic_queue *queue, in
 #define BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, n, queue, member)		\
 	list_for_each_entry_safe_reverse(pos, n, &(queue)->list, member)
 
-#define BASIC_QUEUE_FOREACH BASIC_QUEUE_FOREACH_TAIL
+#define BASIC_QUEUE_FOREACH BASIC_QUEUE_FOREACH_HEAD
 
-#define BASIC_QUEUE_FOREACH_SAFE BASIC_QUEUE_FOREACH_TAIL_SAFE
+#define BASIC_QUEUE_FOREACH_SAFE BASIC_QUEUE_FOREACH_HEAD_SAFE
 
 #define BASIC_QUEUE_DESTROY(type, queue, member, func, args) ({		\
 	type *__pos, *__n;		\
 	BASIC_QUEUE_FOREACH_SAFE(__pos, __n, queue, member) {	\
-		__basic_queue_pop(queue, 0);	\
+		__basic_queue_pop(queue, 1);	\
 		if ((func) != NULL)		\
 			((void (*)(type *, void *))(func))(__pos, args);	\
 		else		\
