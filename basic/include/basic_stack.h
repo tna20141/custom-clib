@@ -61,7 +61,7 @@ static inline int basic_stack_num_elem(struct basic_stack *stack);
 	BASIC_STACK_FOREACH_SAFE(__entry, __temp, stack, member) {	\
 		__basic_stack_pop(stack);		\
 		if (func != NULL)		\
-			((void (*)(type *, void *))func)(__entry, args);		\
+			((void (*)(type *, void *))(func))(__entry, args);		\
 		else		\
 			free(__entry);		\
 	}; })
