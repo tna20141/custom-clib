@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <basic_tree.h>
+#include <basic_queue.h>
 
 /*
  * convenient macros for shortening code lines, will be undefined at the end
@@ -13,7 +14,9 @@
 #define btto basic_tree_traverse_order
 #define btec basic_tree_error_code
 
-
+/*
+ * function definitions
+ */
 btec basic_tree_insert(btnode *node, btnode *parent, int pos) {
 	btnode *ptr;
 
@@ -108,6 +111,26 @@ void __basic_tree_destroy_tree(btnode *node, basic_tree_data_clean_func func, ba
 		__basic_tree_destroy_tree(ptr, func, args);
 	}
 	basic_tree_destroy(node, func, args);
+}
+
+void __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
+	btnode *ptr, *n;
+
+	if (node == NULL)
+		return;
+
+	if (depth == 0)
+		return;
+
+	if (meet_func != NULL)
+		meet_func(node, meet_args);
+
+	list_for_each_entry_safe(ptr, n, &(node->children), siblings) {
+		__basic_tree_traverse_dfs(ptr, depth-1, meet_func, meet_args, done_func, done_args);
+	}
+
+	if (done_func != NULL)
+		done_func(node, done_args);
 }
 
 /*

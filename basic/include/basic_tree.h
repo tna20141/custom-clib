@@ -109,7 +109,7 @@ static inline int basic_tree_num_nodes(btnode *root);
 
 static inline int basic_tree_height(btnode *root);
 
-void basic_tree_traverse(btnode *root, int max_depth, btto order, bttf func, btta args);
+static inline void basic_tree_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
 
 static inline int basic_tree_is_parent(btnode *parent, btnode *child);
 
@@ -134,6 +134,8 @@ btnode *__basic_tree_nth_child(btnode *parent, int pos);
 int __basic_tree_num_nodes(btnode *node);
 int __basic_tree_height(btnode *node);
 void __basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
+void __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
+void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
 
 /*
  * inline function definitions
@@ -281,6 +283,19 @@ static inline int basic_tree_height(btnode *root) {
 		return 0;
 
 	return __basic_tree_height(root);
+}
+
+static inline void basic_tree_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
+	switch (order) {
+		case BASIC_TREE_ORDER_BFS:
+			__basic_tree_traverse_bfs(root, max_depth, meet_func, meet_args, done_func, done_args);
+			break;
+		case BASIC_TREE_ORDER_DFS:
+			__basic_tree_traverse_dfs(root, max_depth, meet_func, meet_args, done_func, done_args);
+			break;
+		default:
+			break;
+	}
 }
 
 static inline int basic_tree_is_parent(btnode *parent, btnode *child) {
