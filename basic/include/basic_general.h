@@ -44,7 +44,7 @@
  *
  */
 #ifndef CONTAINER_OF_SAFE
-#define CONTAINER_OF_SAFE(ptr, type, member) ((ptr) ? CONTAINER_OF(ptr, type, member) : NULL)
+#define CONTAINER_OF_SAFE(ptr, type, member) ((type *)((ptr) ? CONTAINER_OF(ptr, type, member) : NULL))
 #endif
 
 /**
@@ -66,8 +66,12 @@
  *
  */
 #ifndef MEMBER_OF_SAFE
-#define MEMBER_OF_SAFE(ptr, mtype, offset) ((ptr) ? MEMBER_OF(ptr, mtype, offset) : NULL)
- #endif
+#define MEMBER_OF_SAFE(ptr, mtype, offset) ((mtype *)((ptr) ? MEMBER_OF(ptr, mtype, offset) : NULL))
+#endif
+
+#ifndef DEREF
+#define DEREF(ptr) ((ptr) ? (*(ptr)) : NULL)
+#endif
 
 /**
  * SWAP - swap 2 instances of the same type
