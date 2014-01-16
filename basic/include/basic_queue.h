@@ -25,6 +25,10 @@ struct basic_queue {
 	int num;
 };
 
+typedef void basic_queue_cleanup_ret;
+typedef void * basic_queue_cleanup_args;
+typedef basic_queue_cleanup_ret (*basic_queue_cleanup_func)(basic_queue_data, basic_queue_cleanup_args);
+
 /*
  * API functions
  */
@@ -54,6 +58,8 @@ static inline basic_queue_data basic_queue_peek_tail(struct basic_queue *queue);
 
 static inline basic_queue_data basic_queue_peek(struct basic_queue *queue);
 
+static inline void basic_queue_destroy(struct basic_queue *queue, basic_queue_cleanup_func func, basic_queue_cleanup_args args);
+
 /*
  * private functions
  */
@@ -64,33 +70,39 @@ static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int
 /*
  * API macros
  */
-#define BASIC_QUEUE_FOREACH_HEAD(pos, queue)		\
-	for(pos = MEMBER_OF(CONTAINER_OF((queue)->head.next, bs_elem, list), basic_queue_data, OFFSET_OF(bs_elem, data));	\
-		MEMBER_OF(CONTAINER_OF(pos, bs_elem, data), struct list_head, OFFSET_OF(bs_elem, list)) != &(queue)->head;	\
-		pos = MEMBER_OF(CONTAINER_OF(CONTAINER_OF(pos, bs_elem, data)->list.next, bs_elem, list), basic_queue_data, OFFSET_OF(bs_elem, data)))
+#define BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, direction)		\
+	for(pos = (type **)MEMBER_OF(CONTAINER_OF((queue)->head.direction, bq_elem, list),	\
+			basic_queue_data, OFFSET_OF(bq_elem, data));	\
+		MEMBER_OF(CONTAINER_OF((basic_queue_data *)pos, bq_elem, data),		\
+			struct list_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
+		pos = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)pos,		\
+			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
 
-#define BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, n, queue, member)	\
-	list_for_each_entry_safe(pos, n, &(queue)->list, member)
+#define BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, n, type, queue, direction)	\
+	for(pos = (type **)MEMBER_OF(CONTAINER_OF((queue)->head.direction, bq_elem, list),	\
+			basic_queue_data, OFFSET_OF(bq_elem, data)),	\
+		n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)pos,		\
+			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data));		\
+		MEMBER_OF(CONTAINER_OF((basic_queue_data *)pos, bq_elem, data),		\
+			struct list_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
+		pos = n, n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)n,		\
+			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
 
-#define BASIC_QUEUE_FOREACH_TAIL(pos, queue, member)		\
-	list_for_each_entry_reverse(pos, &(queue)->list, member)
+#define BASIC_QUEUE_FOREACH_HEAD(pos, type, queue)		\
+	BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, next)
 
-#define BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, n, queue, member)		\
-	list_for_each_entry_safe_reverse(pos, n, &(queue)->list, member)
+#define BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, type, queue)		\
+	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, type, queue, next)
+
+#define BASIC_QUEUE_FOREACH_TAIL(pos, type, queue)		\
+	BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, prev)
+
+#define BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, type, queue)		\
+	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, type, queue, prev)
 
 #define BASIC_QUEUE_FOREACH BASIC_QUEUE_FOREACH_HEAD
 
 #define BASIC_QUEUE_FOREACH_SAFE BASIC_QUEUE_FOREACH_HEAD_SAFE
-
-#define BASIC_QUEUE_DESTROY(type, queue, member, func, args) ({		\
-	type *__pos, *__n;		\
-	BASIC_QUEUE_FOREACH_SAFE(__pos, __n, queue, member) {	\
-		__basic_queue_pop(queue, 1);	\
-		if ((func) != NULL)		\
-			((void (*)(type *, void *))(func))(__pos, args);	\
-		else		\
-			free(__pos);		\
-	}; })
 
 /*
  * static function definitions
@@ -152,6 +164,16 @@ static inline basic_queue_data basic_queue_peek(struct basic_queue *queue) {
 	return __basic_queue_peek(queue, 1);
 }
 
+static inline void basic_queue_destroy(struct basic_queue *queue, basic_queue_cleanup_func func, basic_queue_cleanup_args args) {
+	basic_queue_data data;
+
+	while (queue->num > 0) {
+		data = basic_queue_pop(queue);
+		if (func != NULL)
+			func(data, args);
+	}
+}
+
 static inline void __basic_queue_push(basic_queue_data data, struct basic_queue *queue, int head) {
 	bq_elem *elem = (bq_elem *)malloc(sizeof(bq_elem));
 
@@ -159,9 +181,9 @@ static inline void __basic_queue_push(basic_queue_data data, struct basic_queue 
 	elem->data = data;
 
 	if (head)
-		list_add(&elem->list, &queue->list);
+		list_add(&elem->list, &queue->head);
 	else
-		list_add_tail(&elem->list, &queue->list);
+		list_add_tail(&elem->list, &queue->head);
 
 	queue->num++;
 }
@@ -169,7 +191,7 @@ static inline void __basic_queue_push(basic_queue_data data, struct basic_queue 
 static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int head) {
 	struct list_head *node;
 	basic_queue_data data;
-	bs_elem *elem;
+	bq_elem *elem;
 
 	if (head)
 		node = queue->head.next;
@@ -177,9 +199,9 @@ static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int 
 		node = queue->head.prev;
 
 	if (node != &queue->head) {
-		elem = container_of(node, bs_elem, list);
+		elem = CONTAINER_OF(node, bq_elem, list);
 		data = elem->data;
-		list_del_init(node);
+		list_del(node);
 		queue->num--;
 		free(elem);
 		return data;
@@ -198,7 +220,7 @@ static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int
 		node = queue->head.prev;
 
 	if (node != &queue->head) {
-		data = container_of(node, bs_elem, list)->data;
+		data = CONTAINER_OF(node, bq_elem, list)->data;
 		return data;
 	} else {
 		return NULL;
