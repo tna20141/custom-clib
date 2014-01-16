@@ -67,9 +67,6 @@ static inline void __basic_queue_push(basic_queue_data data, struct basic_queue 
 static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int head);
 static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int head);
 
-/*
- * API macros
- */
 #define BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, direction)		\
 	for(pos = (type **)MEMBER_OF(CONTAINER_OF((queue)->head.direction, bq_elem, list),	\
 			basic_queue_data, OFFSET_OF(bq_elem, data));	\
@@ -88,17 +85,20 @@ static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int
 		pos = n, n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)n,		\
 			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
 
+/*
+ * API macros
+ */
 #define BASIC_QUEUE_FOREACH_HEAD(pos, type, queue)		\
 	BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, next)
 
-#define BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, type, queue)		\
-	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, type, queue, next)
+#define BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, n, type, queue)		\
+	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, n, type, queue, next)
 
 #define BASIC_QUEUE_FOREACH_TAIL(pos, type, queue)		\
 	BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, prev)
 
-#define BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, type, queue)		\
-	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, type, queue, prev)
+#define BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, n, type, queue)		\
+	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, n, type, queue, prev)
 
 #define BASIC_QUEUE_FOREACH BASIC_QUEUE_FOREACH_HEAD
 
@@ -126,6 +126,7 @@ static inline void basic_queue_reverse(struct basic_queue *queue) {
 	list_for_each_safe(ptr, n, &queue->head) {
 		SWAP(ptr->next, ptr->prev);
 	}
+	SWAP(queue->head.next, queue->head.prev);
 }
 
 static inline void basic_queue_push_head(basic_queue_data data, struct basic_queue *queue) {
