@@ -69,6 +69,11 @@
 #define MEMBER_OF_SAFE(ptr, mtype, offset) ((mtype *)((ptr) ? MEMBER_OF(ptr, mtype, offset) : NULL))
 #endif
 
+/**
+ * DEREF - safely dereference a pointer
+ * @ptr:		the pointer to dereference
+ *
+ */
 #ifndef DEREF
 #define DEREF(ptr) ((ptr) ? (*(ptr)) : NULL)
 #endif
