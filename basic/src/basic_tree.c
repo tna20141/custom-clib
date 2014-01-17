@@ -119,7 +119,7 @@ void __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta mee
 	if (node == NULL)
 		return;
 
-	if (depth == 0)
+	if (depth <= 0)
 		return;
 
 	if (meet_func != NULL)
@@ -131,6 +131,55 @@ void __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta mee
 
 	if (done_func != NULL)
 		done_func(node, done_args);
+}
+
+void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
+	btnode *current, *ptr, *n;
+	int cur_nodes = 0, next_nodes = 0;
+	struct basic_queue queue;
+	int depth = 0;
+
+	if (root == NULL)
+		return;
+
+	if (max_depth <= 0)
+		return;
+
+	basic_queue_init(&queue);
+
+	if (meet_func != NULL)
+		meet_func(root, meet_args);
+	basic_queue_push((void *)root, &queue);
+	cur_nodes = 1;
+	depth=1;
+
+	while (!basic_queue_is_empty(&queue)) {
+		current = (btnode *)basic_queue_pop(&queue);
+		cur_nodes--;
+
+		if (depth == max_depth)
+			goto done;
+
+		list_for_each_entry_safe(ptr, n, &(current->children), siblings) {
+			if (meet_func != NULL)
+				meet_func(ptr, meet_args);
+			basic_queue_push((void *)ptr, &queue);
+			next_nodes++;
+		}
+
+		if (cur_nodes == 0) {
+			depth++;
+			cur_nodes = next_nodes;
+			next_nodes = 0;
+		}
+
+		done:
+
+		if (done_func != NULL)
+			done_func(current, done_args);
+	}
+
+	basic_queue_destroy(&queue, NULL, NULL);
 }
 
 /*
