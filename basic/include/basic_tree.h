@@ -46,7 +46,7 @@ typedef struct basic_tree_node btnode;
 /* tree traverse function */
 typedef int bttr;
 typedef void * btta;
-typedef bttr (*bttf)(btnode *, btta *);
+typedef bttr (*bttf)(btnode_data, btta);
 
 /* node data clean up function */
 typedef void btdcr;
@@ -134,7 +134,7 @@ btnode *__basic_tree_nth_child(btnode *parent, int pos);
 int __basic_tree_num_nodes(btnode *node);
 int __basic_tree_height(btnode *node);
 void __basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
-void __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
+int __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
 void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
 
 /*

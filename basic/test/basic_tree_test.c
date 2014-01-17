@@ -19,6 +19,7 @@
 #include <cmocka.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <basic_list.h>
 #include <basic_general.h>
 #include <basic_tree.h>
@@ -37,6 +38,7 @@
 btnode *test_root;
 
 int test_num;
+char test_str[100];
 
 /* node data struct */
 struct simple_data {
@@ -45,10 +47,18 @@ struct simple_data {
 };
 typedef struct simple_data sd;
 
+/* struct for testing traversal */
+struct test_struct {
+	int n1;
+	int n2;
+};
+
 /* function prototypes (for the ones that need one) */
 void assert_node(btnode *node, int n, const char *str);
 void assert_children(btnode *parent, ...);
 void cleanup_callback(void *node_data, void *data);
+int meet_callback(void *node_data, void *data);
+int done_callback(void *node_data, void *data);
 
 /* fixture set up function */
 static void setup_tree(void **state) {
@@ -437,6 +447,112 @@ static void test_unlink(void **state) {
 	basic_tree_destroy_tree(current, cleanup_callback, (void *)&temp);
 }
 
+static void test_traverse(void **state) {
+	struct test_struct ts1, ts2;
+
+	test_str[0] = '\0';
+	test_num = 0;
+	ts1.n1 = 2;
+	ts1.n2 = 50;
+	ts2.n1 = 3;
+	ts2.n2 = 60;
+	basic_tree_traverse(test_root, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("123212212311214214316216315215313213311333222342521021036263727392938283534313", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 4, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, NULL, NULL);
+	assert_string_equal("123212211214216215213222425210262729282", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 5, BASIC_TREE_ORDER_DFS, NULL, NULL, done_callback, (void *)&ts2);
+	assert_string_equal("123143163153133113332310363739383534313", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 0, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1213", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(basic_tree_nth_child(test_root, 0),
+		2, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("3212212311211333", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	ts1.n2 = 9;
+	basic_tree_traverse(test_root, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1232122123112142143162163152", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	ts2.n2 = 7;
+	basic_tree_traverse(test_root, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1232122123112142143162163", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(NULL, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	ts1.n2 = 50;
+	ts2.n2 = 60;
+	basic_tree_traverse(test_root, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("123222421312211233235243123142162152132113102627292825314316315313310363739383", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 4, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, NULL, NULL);
+	assert_string_equal("123222421221125214216215213210262729282", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 5, BASIC_TREE_ORDER_BFS, NULL, NULL, done_callback, (void *)&ts2);
+	assert_string_equal("133323431231135314316315313310363739383", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 0, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(test_root, 1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1213", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(basic_tree_nth_child(test_root, 0),
+		2, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("3212211233123113", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	ts1.n2 = 9;
+	basic_tree_traverse(test_root, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1232224213122112332352", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	ts2.n2 = 7;
+	basic_tree_traverse(test_root, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("123222421312211233", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	basic_tree_traverse(NULL, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("", test_str);
+}
+
 /*
  * private functions
  */
@@ -470,6 +586,42 @@ void cleanup_callback(void *node_data, void *data) {
 	free(node_data);
 }
 
+int meet_callback(void *node_data, void *data) {
+	struct test_struct *ts = (struct test_struct *)data;
+	sd *ndata = (sd *)node_data;
+	char buf[4];
+
+	snprintf(buf, 4, "%d", ndata->n);
+	strcat(test_str, buf);
+	snprintf(buf, 4, "%d", ts->n1);
+	strcat(test_str, buf);
+
+	test_num++;
+
+	if (test_num > ts->n2)
+		return 1;
+	else
+		return 0;
+}
+
+int done_callback(void *node_data, void *data) {
+	struct test_struct *ts = (struct test_struct *)data;
+	sd *ndata = (sd *)node_data;
+	char buf[4];
+
+	snprintf(buf, 4, "%d", ndata->n);
+	strcat(test_str, buf);
+	snprintf(buf, 4, "%d", ts->n1);
+	strcat(test_str, buf);
+
+	test_num++;
+
+	if (test_num > ts->n2)
+		return 1;
+	else
+		return 0;
+}
+
 /* main function */
 int main(void) {
 	const UnitTest tests[] = {
@@ -486,7 +638,8 @@ int main(void) {
 		unit_test_setup_teardown(test_is_root, setup_tree, teardown_tree),
 		unit_test_setup_teardown(test_is_leaf, setup_tree, teardown_tree),
 		unit_test_setup_teardown(test_is_alone, setup_tree, teardown_tree),
-		unit_test_setup_teardown(test_unlink, setup_tree, teardown_tree)
+		unit_test_setup_teardown(test_unlink, setup_tree, teardown_tree),
+		unit_test_setup_teardown(test_traverse, setup_tree, teardown_tree)
 	};
 
 	return run_tests(tests);

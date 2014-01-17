@@ -113,24 +113,29 @@ void __basic_tree_destroy_tree(btnode *node, basic_tree_data_clean_func func, ba
 	basic_tree_destroy(node, func, args);
 }
 
-void __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
+int __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
 	btnode *ptr, *n;
 
-	if (node == NULL)
-		return;
+	if (depth == 0)
+		return 0;
 
-	if (depth <= 0)
-		return;
+	if (node == NULL)
+		return 0;
 
 	if (meet_func != NULL)
-		meet_func(node, meet_args);
+		if (meet_func(node->data, meet_args))
+			return 1;
 
 	list_for_each_entry_safe(ptr, n, &(node->children), siblings) {
-		__basic_tree_traverse_dfs(ptr, depth-1, meet_func, meet_args, done_func, done_args);
+		if (__basic_tree_traverse_dfs(ptr, depth-1, meet_func, meet_args, done_func, done_args))
+			return 1;
 	}
 
 	if (done_func != NULL)
-		done_func(node, done_args);
+		if(done_func(node->data, done_args))
+			return 1;
+
+	return 0;
 }
 
 void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
@@ -142,16 +147,17 @@ void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta
 	if (root == NULL)
 		return;
 
-	if (max_depth <= 0)
+	if (max_depth == 0)
 		return;
 
 	basic_queue_init(&queue);
 
 	if (meet_func != NULL)
-		meet_func(root, meet_args);
+		if (meet_func(root->data, meet_args))
+			goto ret;
 	basic_queue_push((void *)root, &queue);
 	cur_nodes = 1;
-	depth=1;
+	depth = 1;
 
 	while (!basic_queue_is_empty(&queue)) {
 		current = (btnode *)basic_queue_pop(&queue);
@@ -162,7 +168,8 @@ void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta
 
 		list_for_each_entry_safe(ptr, n, &(current->children), siblings) {
 			if (meet_func != NULL)
-				meet_func(ptr, meet_args);
+				if (meet_func(ptr->data, meet_args))
+					goto ret;
 			basic_queue_push((void *)ptr, &queue);
 			next_nodes++;
 		}
@@ -176,8 +183,11 @@ void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta
 		done:
 
 		if (done_func != NULL)
-			done_func(current, done_args);
+			if (done_func(current->data, done_args))
+				goto ret;
 	}
+
+	ret:
 
 	basic_queue_destroy(&queue, NULL, NULL);
 }
