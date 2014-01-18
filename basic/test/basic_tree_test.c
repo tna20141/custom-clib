@@ -213,8 +213,8 @@ static void test_insert_get_destroy_nodes(void **state) {
 	/* abnormal cases */
 	BUILD_NODE(17, "seventeen");
 	current = bt_nth_child(test_root, 2);
-	assert_int_equal(BASIC_TREE_INDEX_ERROR, bt_insert(node, current, -3));
-	assert_int_equal(BASIC_TREE_INDEX_ERROR, bt_insert(node, current, 2));
+	assert_int_equal(BT_INDEX_ERROR, bt_insert(node, current, -3));
+	assert_int_equal(BT_INDEX_ERROR, bt_insert(node, current, 2));
 	free(data);
 	free(node);
 }
@@ -456,100 +456,100 @@ static void test_traverse(void **state) {
 	ts1.n2 = 50;
 	ts2.n1 = 3;
 	ts2.n2 = 60;
-	bt_traverse(test_root, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, -1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("123212212311214214316216315215313213311333222342521021036263727392938283534313", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 4, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, NULL, NULL);
+	bt_traverse(test_root, 4, BT_ORDER_DFS, meet_callback, (void *)&ts1, NULL, NULL);
 	assert_string_equal("123212211214216215213222425210262729282", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 5, BASIC_TREE_ORDER_DFS, NULL, NULL, done_callback, (void *)&ts2);
+	bt_traverse(test_root, 5, BT_ORDER_DFS, NULL, NULL, done_callback, (void *)&ts2);
 	assert_string_equal("123143163153133113332310363739383534313", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 0, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, 0, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, 1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("1213", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	bt_traverse(bt_nth_child(test_root, 0),
-		2, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+		2, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("3212212311211333", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	ts1.n2 = 9;
-	bt_traverse(test_root, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, -1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("1232122123112142143162163152", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	ts2.n2 = 7;
-	bt_traverse(test_root, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, -1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("1232122123112142143162163", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(NULL, -1, BASIC_TREE_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(NULL, -1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	ts1.n2 = 50;
 	ts2.n2 = 60;
-	bt_traverse(test_root, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, -1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("123222421312211233235243123142162152132113102627292825314316315313310363739383", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 4, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, NULL, NULL);
+	bt_traverse(test_root, 4, BT_ORDER_BFS, meet_callback, (void *)&ts1, NULL, NULL);
 	assert_string_equal("123222421221125214216215213210262729282", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 5, BASIC_TREE_ORDER_BFS, NULL, NULL, done_callback, (void *)&ts2);
+	bt_traverse(test_root, 5, BT_ORDER_BFS, NULL, NULL, done_callback, (void *)&ts2);
 	assert_string_equal("133323431231135314316315313310363739383", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 0, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, 0, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(test_root, 1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, 1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("1213", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	bt_traverse(bt_nth_child(test_root, 0),
-		2, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+		2, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("3212211233123113", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	ts1.n2 = 9;
-	bt_traverse(test_root, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, -1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("1232224213122112332352", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
 	ts2.n2 = 7;
-	bt_traverse(test_root, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(test_root, -1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("123222421312211233", test_str);
 
 	test_str[0] = '\0';
 	test_num = 0;
-	bt_traverse(NULL, -1, BASIC_TREE_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	bt_traverse(NULL, -1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("", test_str);
 }
 

@@ -66,13 +66,13 @@ typedef btdcr (*btdcf)(btnode_data, btdca);
 
 /* enum for tree traverse order */
 typedef enum {
-	BASIC_TREE_ORDER_DFS,
-	BASIC_TREE_ORDER_BFS
+	BT_ORDER_DFS,
+	BT_ORDER_BFS
 } btto;
 
 /* enum for error codes */
 typedef enum {
-	BASIC_TREE_INDEX_ERROR = -1
+	BT_INDEX_ERROR = -1
 } btec;
 
 /*
@@ -294,10 +294,10 @@ static inline int bt_height(btnode *root) {
 
 static inline void bt_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
 	switch (order) {
-		case BASIC_TREE_ORDER_BFS:
+		case BT_ORDER_BFS:
 			__bt_traverse_bfs(root, max_depth, meet_func, meet_args, done_func, done_args);
 			break;
-		case BASIC_TREE_ORDER_DFS:
+		case BT_ORDER_DFS:
 			__bt_traverse_dfs(root, max_depth, meet_func, meet_args, done_func, done_args);
 			break;
 		default:

@@ -38,7 +38,7 @@ btec bt_insert(btnode *node, btnode *parent, int pos) {
 
 	/* can't find the right position, return error */
 	if (ptr == NULL)
-		return BASIC_TREE_INDEX_ERROR;
+		return BT_INDEX_ERROR;
 
 	/* insert node */
 	if (pos < 0)
