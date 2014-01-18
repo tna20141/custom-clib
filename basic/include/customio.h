@@ -16,17 +16,17 @@
 /*
  * convenient macros for shortening code lines, will be undefined at the end
  */
-#define cec customio_error_code
+#define cec cio_error_code
 
 /*
  * constant macros
  */
 
 /* the initial buffer size */
-#define CUSTOMIO_INIT_BUF_SIZE 256
+#define CIO_INIT_BUF_SIZE 256
 
 /* the buffer increment value */
-#define CUSTOMIO_BUF_INC 256
+#define CIO_BUF_INC 256
 
 /*
  * enumarations
@@ -34,33 +34,33 @@
 
 /* enum type containing error codes */
 typedef enum {
-	CUSTOMIO_READ_ERROR  = -2,
-	CUSTOMIO_ALLOC_ERROR = -3
-} customio_error_code;
+	CIO_READ_ERROR  = -2,
+	CIO_ALLOC_ERROR = -3
+} cio_error_code;
 
 /*
  * API functions
  */
 
 /*
- * customio_is_ws - check if a character is whitespace or not
+ * cio_is_ws - check if a character is whitespace or not
  * @c: character to check
  * @return: 1 if c is whitespace, 0 otherwise
  */
-static inline int customio_is_ws(char c);
+static inline int cio_is_ws(char c);
 
 /*
- * customio_get_before_ws - read a series of character until (and exclude) a whitespace
+ * cio_get_before_ws - read a series of character until (and exclude) a whitespace
  * @stream: the input stream to read from
  * @ptr: the pointer to save the address of the read data
  * @num: the integer to save the number of characters read
  * @ws: the whitespace character that is met
  * @return: error code
  */
-static inline cec customio_get_before_ws(FILE *stream, char **ptr, int size, int *num, char *ws);
+static inline cec cio_get_before_ws(FILE *stream, char **ptr, int size, int *num, char *ws);
 
 /*
- * customio_get_before_delim - read a series of character until (and exclude) a delimeter
+ * cio_get_before_delim - read a series of character until (and exclude) a delimeter
  * @stream: the input stream to read from
  * @delims: string containing delimiter characters
  * @ptr: the pointer to save the address of the read data
@@ -69,10 +69,10 @@ static inline cec customio_get_before_ws(FILE *stream, char **ptr, int size, int
  * @delim: the delim that is met
  * @return: error code
  */
-static inline cec customio_get_before_delim(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
+static inline cec cio_get_before_delim(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
 
 /*
- * customio_get_before_delim_or_ws - read a series of character until (and exclude) a delimeter or a whitespace
+ * cio_get_before_delim_or_ws - read a series of character until (and exclude) a delimeter or a whitespace
  * @stream: the input stream to read from
  * @delims: string containing delimiter characters
  * @ptr: the pointer to save the address of the read data
@@ -81,10 +81,10 @@ static inline cec customio_get_before_delim(FILE *stream, const char *delims, ch
  * @delim: the delim that is met
  * @return: error code
  */
-static inline cec customio_get_before_delim_or_ws(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
+static inline cec cio_get_before_delim_or_ws(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
 
 /*
- * customio_get_till_delim - read a series of character until (and include) a delimeter
+ * cio_get_till_delim - read a series of character until (and include) a delimeter
  * @stream: the input stream to read from
  * @delims: string containing delimiter characters
  * @ptr: the pointer to save the address of the read data
@@ -92,10 +92,10 @@ static inline cec customio_get_before_delim_or_ws(FILE *stream, const char *deli
  * @num: the integer to save the number of characters read
  * @return: error code
  */
-cec customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int size, int *num);
+cec cio_get_till_delim(FILE *stream, const char *delims, char **ptr, int size, int *num);
 
 /*
- * customio_get_before_ws - read a series of character until (and exclude) a whitespace, ignore leading whitespaces
+ * cio_get_before_ws - read a series of character until (and exclude) a whitespace, ignore leading whitespaces
  * @stream: the input stream to read from
  * @ptr: the pointer to save the address of the read data
  * @size: buffer size if ptr initially points to allocated data
@@ -103,10 +103,10 @@ cec customio_get_till_delim(FILE *stream, const char *delims, char **ptr, int si
  * @ws: the whitespace character that is met
  * @return: error code
  */
-static inline cec customio_get_before_ws_ignore(FILE *stream, char **ptr, int size, int *num, char *ws);
+static inline cec cio_get_before_ws_ignore(FILE *stream, char **ptr, int size, int *num, char *ws);
 
 /*
- * customio_get_before_delim - read a series of character until (and exclude) a delimeter, ignore leading whitespaces
+ * cio_get_before_delim - read a series of character until (and exclude) a delimeter, ignore leading whitespaces
  * @stream: the input stream to read from
  * @delims: string containing delimiter characters
  * @ptr: the pointer to save the address of the read data
@@ -115,10 +115,10 @@ static inline cec customio_get_before_ws_ignore(FILE *stream, char **ptr, int si
  * @delim: the delim that is met
  * @return: error code
  */
-static inline cec customio_get_before_delim_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
+static inline cec cio_get_before_delim_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
 
 /*
- * customio_get_before_delim_or_ws - read a series of character until (and exclude) a delimeter or a whitespace, ignore leading whitespaces
+ * cio_get_before_delim_or_ws - read a series of character until (and exclude) a delimeter or a whitespace, ignore leading whitespaces
  * @stream: the input stream to read from
  * @delims: string containing delimiter characters
  * @ptr: the pointer to save the address of the read data
@@ -127,44 +127,44 @@ static inline cec customio_get_before_delim_ignore(FILE *stream, const char *del
  * @delim: the delim that is met
  * @return: error code
  */
-static inline cec customio_get_before_delim_or_ws_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
+static inline cec cio_get_before_delim_or_ws_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim);
 
 /*
- * customio_eat_ws - eat a series of whitespace characters
+ * cio_eat_ws - eat a series of whitespace characters
  * @stream: the input stream to read from
  * @count: save the number of characters eaten
  * @return: error code
  */
-cec customio_eat_ws(FILE *stream, int *count);
+cec cio_eat_ws(FILE *stream, int *count);
 
 /*
- * customio_trim_before - trim all leading whitespaces of a string
+ * cio_trim_before - trim all leading whitespaces of a string
  * @str: the string to trim
  */
-void customio_trim_before(char *str);
+void cio_trim_before(char *str);
 
 /*
- * customio_trim_before - trim all trailing whitespaces of a string
+ * cio_trim_before - trim all trailing whitespaces of a string
  * @str: the string to trim
  */
-void customio_trim_after(char *str);
+void cio_trim_after(char *str);
 
 /*
- * customio_trim_before - trim all leading and trailing whitespaces of a string
+ * cio_trim_before - trim all leading and trailing whitespaces of a string
  * @str: the string to trim
  */
-void customio_trim(char *str);
+void cio_trim(char *str);
 
 /*
  * private functions
  */
-cec __customio_is_delim(char c, const char *delims, int ws);
-cec __customio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int size, int *num, char *delim, int ignore);
+cec __cio_is_delim(char c, const char *delims, int ws);
+cec __cio_get_before_delim(FILE *stream, const char *delims, int ws, char **ptr, int size, int *num, char *delim, int ignore);
 
 /*
  * inline function definitions
  */
-static inline int customio_is_ws(char c) {
+static inline int cio_is_ws(char c) {
 	switch (c) {
 		/* tab */
 		case 9:
@@ -185,28 +185,28 @@ static inline int customio_is_ws(char c) {
 	}
 }
 
-static inline cec customio_get_before_ws(FILE *stream, char **ptr, int size, int *num, char *ws) {
-	return __customio_get_before_delim(stream, "", 1, ptr, size, num, ws, 0);
+static inline cec cio_get_before_ws(FILE *stream, char **ptr, int size, int *num, char *ws) {
+	return __cio_get_before_delim(stream, "", 1, ptr, size, num, ws, 0);
 }
 
-static inline cec customio_get_before_delim(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
-	return __customio_get_before_delim(stream, delims, 0, ptr, size, num, delim, 0);
+static inline cec cio_get_before_delim(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
+	return __cio_get_before_delim(stream, delims, 0, ptr, size, num, delim, 0);
 }
 
-static inline cec customio_get_before_delim_or_ws(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
-	return __customio_get_before_delim(stream, delims, 1, ptr, size, num, delim, 0);
+static inline cec cio_get_before_delim_or_ws(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
+	return __cio_get_before_delim(stream, delims, 1, ptr, size, num, delim, 0);
 }
 
-static inline cec customio_get_before_ws_ignore(FILE *stream, char **ptr, int size, int *num, char *ws) {
-	return __customio_get_before_delim(stream, "", 1, ptr, size, num, ws, 1);
+static inline cec cio_get_before_ws_ignore(FILE *stream, char **ptr, int size, int *num, char *ws) {
+	return __cio_get_before_delim(stream, "", 1, ptr, size, num, ws, 1);
 }
 
-static inline cec customio_get_before_delim_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
-	return __customio_get_before_delim(stream, delims, 0, ptr, size, num, delim, 1);
+static inline cec cio_get_before_delim_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
+	return __cio_get_before_delim(stream, delims, 0, ptr, size, num, delim, 1);
 }
 
-static inline cec customio_get_before_delim_or_ws_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
-	return __customio_get_before_delim(stream, delims, 1, ptr, size, num, delim, 1);
+static inline cec cio_get_before_delim_or_ws_ignore(FILE *stream, const char *delims, char **ptr, int size, int *num, char *delim) {
+	return __cio_get_before_delim(stream, delims, 1, ptr, size, num, delim, 1);
 }
 
 /*

@@ -23,16 +23,16 @@
 #include <customio.h>
 
 static void test_is_ws(void **state) {
-	assert_int_equal(1, customio_is_ws('\n'));
-	assert_int_equal(1, customio_is_ws('\t'));
-	assert_int_equal(1, customio_is_ws('\r'));
-	assert_int_equal(1, customio_is_ws('\f'));
-	assert_int_equal(1, customio_is_ws('\v'));
-	assert_int_equal(1, customio_is_ws(' '));
-	assert_int_equal(0, customio_is_ws('a'));
-	assert_int_equal(0, customio_is_ws('1'));
-	assert_int_equal(0, customio_is_ws('\b'));
-	assert_int_equal(0, customio_is_ws('\0'));
+	assert_int_equal(1, cio_is_ws('\n'));
+	assert_int_equal(1, cio_is_ws('\t'));
+	assert_int_equal(1, cio_is_ws('\r'));
+	assert_int_equal(1, cio_is_ws('\f'));
+	assert_int_equal(1, cio_is_ws('\v'));
+	assert_int_equal(1, cio_is_ws(' '));
+	assert_int_equal(0, cio_is_ws('a'));
+	assert_int_equal(0, cio_is_ws('1'));
+	assert_int_equal(0, cio_is_ws('\b'));
+	assert_int_equal(0, cio_is_ws('\0'));
 }
 
 static void test_get_before_ws(void **state) {
@@ -47,17 +47,17 @@ static void test_get_before_ws(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	assert_int_equal(0, customio_get_before_ws(f, &buf, 0, &num, &ws));
+	assert_int_equal(0, cio_get_before_ws(f, &buf, 0, &num, &ws));
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	assert_int_equal(' ', ws);
 
 	old_buf = buf;
-	assert_int_equal(0, customio_get_before_ws_ignore(f, &buf, num+1, NULL, NULL));
+	assert_int_equal(0, cio_get_before_ws_ignore(f, &buf, num+1, NULL, NULL));
 	assert_string_equal("cc", buf);
 	assert_int_equal(old_buf, buf);
 
-	assert_int_equal(0, customio_get_before_ws_ignore(f, &buf, num+1, &num, &ws));
+	assert_int_equal(0, cio_get_before_ws_ignore(f, &buf, num+1, &num, &ws));
 	assert_string_equal("dd", buf);
 	assert_int_equal(2, num);
 	assert_int_equal(EOF, ws);
@@ -69,14 +69,14 @@ static void test_get_before_ws(void **state) {
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
 	buf = (char *)malloc(6);
 	old_buf = buf;
-	assert_int_equal(0, customio_get_before_ws(f, &buf, 6, &num, NULL));
+	assert_int_equal(0, cio_get_before_ws(f, &buf, 6, &num, NULL));
 	assert_string_equal("aabbcc", buf);
 	assert_int_equal(6, num);
 	assert_int_equal(old_buf, buf);
 	fclose(f);
 
 	f = fmemopen(test_data3, strlen(test_data3), "rb");
-	assert_int_equal(0, customio_get_before_ws(f, &buf, num+1, &num, &ws));
+	assert_int_equal(0, cio_get_before_ws(f, &buf, num+1, &num, &ws));
 	assert_string_equal("", buf);
 	assert_int_equal(0, num);
 	assert_int_equal('\t', ws);
@@ -91,12 +91,12 @@ static void test_get_before_ws(void **state) {
 	test_data4[1023] = '\0';
 
 	f = fmemopen(test_data4, strlen(test_data4), "rb");
-	assert_int_equal(0, customio_get_before_ws(f, &buf, 0, &num, &ws));
+	assert_int_equal(0, cio_get_before_ws(f, &buf, 0, &num, &ws));
 	assert_int_equal(400, num);
 	assert_int_equal(' ', ws);
 
 	old_buf = buf;
-	assert_int_equal(0, customio_get_before_ws_ignore(f, &buf, num+1, &num, &ws));
+	assert_int_equal(0, cio_get_before_ws_ignore(f, &buf, num+1, &num, &ws));
 	assert_int_equal(622, num);
 	assert_int_equal(EOF, ws);
 	assert_int_not_equal(old_buf, buf);
@@ -113,8 +113,8 @@ static void test_get_before_ws(void **state) {
 	 ws = 'T';
 	 f = fmemopen(test_data4, strlen(test_data4), "wb");
 	 assert_int_equal(
-	 	CUSTOMIO_READ_ERROR,
-	 	customio_get_before_ws(f, &buf, 0, &num, &ws)
+	 	CIO_READ_ERROR,
+	 	cio_get_before_ws(f, &buf, 0, &num, &ws)
 	 ),
 	 assert_int_equal(test_data1, buf);
 	 assert_int_equal(1000, num);
@@ -133,27 +133,27 @@ static void test_get_before_delim(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	assert_int_equal(0, customio_get_before_delim(f, "e", &buf, 0, &num, &ws));
+	assert_int_equal(0, cio_get_before_delim(f, "e", &buf, 0, &num, &ws));
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	assert_int_equal('e', ws);
 
-	customio_get_before_delim(f, "bd\t;=", &buf, num+1, NULL, NULL);
+	cio_get_before_delim(f, "bd\t;=", &buf, num+1, NULL, NULL);
 	assert_string_equal("ecc\n ", buf);
 
-	customio_get_before_delim_ignore(f, "$*()", &buf, num+1, NULL, &ws);
+	cio_get_before_delim_ignore(f, "$*()", &buf, num+1, NULL, &ws);
 	assert_string_equal("dd", buf);
 	assert_int_equal(EOF, ws);
 	fclose(f);
 
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
-	customio_get_before_delim_ignore(f, "AV&EF", &buf, num+1, &num, NULL);
+	cio_get_before_delim_ignore(f, "AV&EF", &buf, num+1, &num, NULL);
 	assert_string_equal("aabbcc", buf);
 	assert_int_equal(6, num);
 	fclose(f);
 
 	f = fmemopen(test_data3, strlen(test_data3), "rb");
-	customio_get_before_delim(f, "cbd", &buf, num+1, &num, &ws);
+	cio_get_before_delim(f, "cbd", &buf, num+1, &num, &ws);
 	assert_string_equal("\taa", buf);
 	assert_int_equal(3, num);
 	assert_int_equal('b', ws);
@@ -167,7 +167,7 @@ static void test_get_before_delim(void **state) {
 	test_data4[1023] = '\0';
 
 	f = fmemopen(test_data4, strlen(test_data4), "rb");
-	customio_get_before_delim(f, "bc$", &buf, 0, &num, &ws);
+	cio_get_before_delim(f, "bc$", &buf, 0, &num, &ws);
 	assert_int_equal(1000, num);
 	assert_int_equal('$', ws);
 	free(buf);
@@ -185,21 +185,21 @@ static void test_get_before_delim_or_ws(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	assert_int_equal(0, customio_get_before_delim_or_ws(f, "e", &buf, 0, &num, &ws));
+	assert_int_equal(0, cio_get_before_delim_or_ws(f, "e", &buf, 0, &num, &ws));
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	assert_int_equal('e', ws);
 
-	customio_get_before_delim_or_ws(f, "bd;=", &buf, num+1, NULL, NULL);
+	cio_get_before_delim_or_ws(f, "bd;=", &buf, num+1, NULL, NULL);
 	assert_string_equal("ecc", buf);
 
-	customio_get_before_delim_or_ws_ignore(f, "$*()", &buf, num+1, NULL, &ws);
+	cio_get_before_delim_or_ws_ignore(f, "$*()", &buf, num+1, NULL, &ws);
 	assert_string_equal("dd", buf);
 	assert_int_equal(EOF, ws);
 	fclose(f);
 
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
-	customio_get_before_delim_or_ws_ignore(f, "cDB", &buf, num+1, &num, NULL);
+	cio_get_before_delim_or_ws_ignore(f, "cDB", &buf, num+1, &num, NULL);
 	assert_string_equal("aabb", buf);
 	assert_int_equal(4, num);
 	free(buf);
@@ -207,12 +207,12 @@ static void test_get_before_delim_or_ws(void **state) {
 	fclose(f);
 
 	f = fmemopen(test_data3, strlen(test_data3), "rb");
-	customio_get_before_delim_or_ws(f, "cbd", &buf, 0, &num, &ws);
+	cio_get_before_delim_or_ws(f, "cbd", &buf, 0, &num, &ws);
 	assert_string_equal("", buf);
 	assert_int_equal(0, num);
 	assert_int_equal('\t', ws);
 
-	customio_get_before_delim_or_ws(f, "cbd", &buf, num+1, NULL, NULL);
+	cio_get_before_delim_or_ws(f, "cbd", &buf, num+1, NULL, NULL);
 	assert_string_equal("", buf);
 	free(buf);
 	buf = NULL;
@@ -224,7 +224,7 @@ static void test_get_before_delim_or_ws(void **state) {
 	test_data4[1023] = '\0';
 
 	f = fmemopen(test_data4, strlen(test_data4), "rb");
-	customio_get_before_delim_or_ws(f, "bc$", &buf, 1, &num, &ws);
+	cio_get_before_delim_or_ws(f, "bc$", &buf, 1, &num, &ws);
 	assert_int_equal(768, num);
 	assert_int_equal('$', ws);
 	free(buf);
@@ -240,11 +240,11 @@ static void test_get_till_delim(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data1, strlen(test_data1), "rb");
-	assert_int_equal(0, customio_get_till_delim(f, "= cCe", &buf, 0, &num));
+	assert_int_equal(0, cio_get_till_delim(f, "= cCe", &buf, 0, &num));
 	assert_string_equal("aabbe", buf);
 	assert_int_equal(5, num);
 
-	customio_get_till_delim(f, "b\t;=", &buf, num+1, NULL);
+	cio_get_till_delim(f, "b\t;=", &buf, num+1, NULL);
 	assert_string_equal("cc\n dd", buf);
 	free(buf);
 	buf = NULL;
@@ -257,11 +257,11 @@ static void test_get_till_delim(void **state) {
 	test_data2[1023] = '\0';
 
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
-	customio_get_till_delim(f, "x^^y", &buf, 3, &num);
+	cio_get_till_delim(f, "x^^y", &buf, 3, &num);
 	assert_int_equal(384, num);
 
 	old_buf = buf;
-	customio_get_till_delim(f, "bc$", &buf, num+1, &num);
+	cio_get_till_delim(f, "bc$", &buf, num+1, &num);
 	assert_int_equal(384, num);
 	assert_int_equal(old_buf, buf);
 	fclose(f);
@@ -269,7 +269,7 @@ static void test_get_till_delim(void **state) {
 	test_data2[383] = 'b';
 	test_data2[384] = '@';
 	f = fmemopen(test_data2, strlen(test_data2), "rb");
-	assert_int_equal(0, customio_get_till_delim(f, "@", &buf, num+1, &num));
+	assert_int_equal(0, cio_get_till_delim(f, "@", &buf, num+1, &num));
 	assert_int_equal(385, num);
 	assert_int_not_equal(old_buf, buf);
 	free(buf);
@@ -283,17 +283,17 @@ static void test_eat_ws(void **state) {
 	FILE *f = NULL;
 
 	f = fmemopen(test_data, strlen(test_data), "rb");
-	assert_int_equal(0, customio_eat_ws(f, &count));
+	assert_int_equal(0, cio_eat_ws(f, &count));
 	assert_int_equal(0, ftell(f));
 	assert_int_equal(0, count);
 
 	fseek(f, 1, SEEK_CUR);
-	customio_eat_ws(f, NULL);
+	cio_eat_ws(f, NULL);
 	assert_int_equal(3, ftell(f));
 	assert_int_equal('b', fgetc(f));
 
 	fseek(f, 2, SEEK_CUR);
-	customio_eat_ws(f, &count);
+	cio_eat_ws(f, &count);
 	assert_int_equal(1, feof(f));
 	assert_int_equal(7, count);
 	fclose(f);
@@ -304,13 +304,13 @@ static void test_trim_before(void **state) {
 	char str2[] = "a b \n ccd e ";
 	char str3[] = "\n\v\t  \n\r ";
 
-	customio_trim_before(str1);
+	cio_trim_before(str1);
 	assert_string_equal("aa bb \n", str1);
 
-	customio_trim_before(str2);
+	cio_trim_before(str2);
 	assert_string_equal("a b \n ccd e ", str2);
 
-	customio_trim_before(str3);
+	cio_trim_before(str3);
 	assert_string_equal("", str3);
 }
 
@@ -319,13 +319,13 @@ static void test_trim_after(void **state) {
 	char str2[] = "  a b \n ccd e";
 	char str3[] = "\n\v\t  \n\r ";
 
-	customio_trim_after(str1);
+	cio_trim_after(str1);
 	assert_string_equal("  \n \t aa bb", str1);
 
-	customio_trim_after(str2);
+	cio_trim_after(str2);
 	assert_string_equal("  a b \n ccd e", str2);
 
-	customio_trim_after(str3);
+	cio_trim_after(str3);
 	assert_string_equal("", str3);
 }
 
@@ -335,16 +335,16 @@ static void test_trim(void **state) {
 	char str3[] = "a b \n ccd e\t\t";
 	char str4[] = "\n\v\t  \n\r ";
 
-	customio_trim(str1);
+	cio_trim(str1);
 	assert_string_equal("aa bb", str1);
 
-	customio_trim(str2);
+	cio_trim(str2);
 	assert_string_equal("a b \n ccd e", str2);
 
-	customio_trim(str3);
+	cio_trim(str3);
 	assert_string_equal("a b \n ccd e", str3);
 
-	customio_trim(str4);
+	cio_trim(str4);
 	assert_string_equal("", str4);
 }
 
