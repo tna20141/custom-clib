@@ -15,13 +15,13 @@
 typedef void * basic_queue_data;
 
 struct basic_queue_elem {
-	struct list_head list;
+	struct bl_head list;
 	basic_queue_data data;
 };
 typedef struct basic_queue_elem bq_elem;
 
 struct basic_queue {
-	struct list_head head;
+	struct bl_head head;
 	int num;
 };
 
@@ -71,7 +71,7 @@ static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int
 	for(pos = (type **)MEMBER_OF(CONTAINER_OF((queue)->head.direction, bq_elem, list),	\
 			basic_queue_data, OFFSET_OF(bq_elem, data));	\
 		MEMBER_OF(CONTAINER_OF((basic_queue_data *)pos, bq_elem, data),		\
-			struct list_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
+			struct bl_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
 		pos = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)pos,		\
 			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
 
@@ -81,7 +81,7 @@ static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int
 		n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)pos,		\
 			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data));		\
 		MEMBER_OF(CONTAINER_OF((basic_queue_data *)pos, bq_elem, data),		\
-			struct list_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
+			struct bl_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
 		pos = n, n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)n,		\
 			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
 
@@ -108,7 +108,7 @@ static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int
  * static function definitions
  */
 static inline void basic_queue_init(struct basic_queue *queue) {
-	INIT_LIST_HEAD(&queue->head);
+	BL_INIT_HEAD(&queue->head);
 	queue->num = 0;
 }
 
@@ -121,9 +121,9 @@ static inline int basic_queue_num_elem(struct basic_queue *queue) {
 }
 
 static inline void basic_queue_reverse(struct basic_queue *queue) {
-	struct list_head *ptr, *n;
+	struct bl_head *ptr, *n;
 
-	list_for_each_safe(ptr, n, &queue->head) {
+	bl_for_each_safe(ptr, n, &queue->head) {
 		SWAP(ptr->next, ptr->prev);
 	}
 	SWAP(queue->head.next, queue->head.prev);
@@ -178,19 +178,19 @@ static inline void basic_queue_destroy(struct basic_queue *queue, basic_queue_cl
 static inline void __basic_queue_push(basic_queue_data data, struct basic_queue *queue, int head) {
 	bq_elem *elem = (bq_elem *)malloc(sizeof(bq_elem));
 
-	INIT_LIST_HEAD(&elem->list);
+	BL_INIT_HEAD(&elem->list);
 	elem->data = data;
 
 	if (head)
-		list_add(&elem->list, &queue->head);
+		bl_add(&elem->list, &queue->head);
 	else
-		list_add_tail(&elem->list, &queue->head);
+		bl_add_tail(&elem->list, &queue->head);
 
 	queue->num++;
 }
 
 static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int head) {
-	struct list_head *node;
+	struct bl_head *node;
 	basic_queue_data data;
 	bq_elem *elem;
 
@@ -202,7 +202,7 @@ static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int 
 	if (node != &queue->head) {
 		elem = CONTAINER_OF(node, bq_elem, list);
 		data = elem->data;
-		list_del(node);
+		bl_del(node);
 		queue->num--;
 		free(elem);
 		return data;
@@ -212,7 +212,7 @@ static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int 
 }
 
 static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int head) {
-	struct list_head *node;
+	struct bl_head *node;
 	basic_queue_data data;
 
 	if (head)

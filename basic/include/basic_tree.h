@@ -17,14 +17,14 @@
 /*
  * convenient macros for shortening code lines, will be undefined at the end
  */
-#define bttr basic_tree_traverse_ret
-#define btta basic_tree_traverse_args
-#define bttf basic_tree_traverse_func
-#define btdcr basic_tree_data_clean_ret
-#define btdca basic_tree_data_clean_args
-#define btdcf basic_tree_data_clean_func
-#define btto basic_tree_traverse_order
-#define btec basic_tree_error_code
+#define bttr bt_traverse_ret
+#define btta bt_traverse_args
+#define bttf bt_traverse_func
+#define btdcr bt_data_clean_ret
+#define btdca bt_data_clean_args
+#define btdcf bt_data_clean_func
+#define btto bt_traverse_order
+#define btec bt_error_code
 
 /*
  * type definitions
@@ -34,19 +34,26 @@
 typedef void * btnode_data;
 
 /* tree node struct */
-struct basic_tree_node {
+struct bt_node {
 	btnode_data data;
-	struct basic_tree_node *next;
-	struct basic_tree_node *parent;
-	struct list_head siblings;
-	struct list_head children;
+	struct bt_node *next;
+	struct bt_node *parent;
+	struct bl_head siblings;
+	struct bl_head children;
 };
-typedef struct basic_tree_node btnode;
+typedef struct bt_node btnode;
+
+/* control struct for traversal, contains info about current node */
+struct bt_node_info {
+	/* TODO: currently not implemented yet */
+	int is_leaf;
+};
+typedef struct bt_node_info btinfo;
 
 /* tree traverse function */
 typedef int bttr;
 typedef void * btta;
-typedef bttr (*bttf)(btnode_data, btta);
+typedef bttr (*bttf)(btnode_data, btta, btinfo *);
 
 /* node data clean up function */
 typedef void btdcr;
@@ -71,111 +78,111 @@ typedef enum {
 /*
  * API functions
  */
-static inline btnode *basic_tree_new(btnode_data data);
+static inline btnode *bt_new(btnode_data data);
 
-btec basic_tree_insert(btnode *node, btnode *parent, int pos);
+btec bt_insert(btnode *node, btnode *parent, int pos);
 
-static inline void basic_tree_insert_after(btnode *node, btnode *sibling);
+static inline void bt_insert_after(btnode *node, btnode *sibling);
 
-static inline void basic_tree_insert_before(btnode *node, btnode *sibling);
+static inline void bt_insert_before(btnode *node, btnode *sibling);
 
-static inline void basic_tree_append(btnode *node, btnode *parent);
+static inline void bt_append(btnode *node, btnode *parent);
 
-static inline void basic_tree_prepend(btnode *node, btnode *parent);
+static inline void bt_prepend(btnode *node, btnode *parent);
 
-static inline btnode *basic_tree_unlink(btnode *node);
+static inline btnode *bt_unlink(btnode *node);
 
-static inline btnode *basic_tree_get_root(btnode *node);
+static inline btnode *bt_get_root(btnode *node);
 
-static inline btnode *basic_tree_nth_child(btnode *parent, int pos);
+static inline btnode *bt_nth_child(btnode *parent, int pos);
 
-static inline btnode *basic_tree_prev_sibling(btnode *node);
+static inline btnode *bt_prev_sibling(btnode *node);
 
-static inline btnode *basic_tree_next_sibling(btnode *node);
+static inline btnode *bt_next_sibling(btnode *node);
 
-static inline btnode *basic_tree_nth_sibling(btnode *node, int pos);
+static inline btnode *bt_nth_sibling(btnode *node, int pos);
 
-static inline btnode *basic_tree_parent(btnode *node);
+static inline btnode *bt_parent(btnode *node);
 
-static inline btnode *basic_tree_ancestor(btnode *node, int levels);
+static inline btnode *bt_ancestor(btnode *node, int levels);
 
-static inline int basic_tree_child_position(btnode *node);
+static inline int bt_child_position(btnode *node);
 
-static inline int basic_tree_depth(btnode *node);
+static inline int bt_depth(btnode *node);
 
-static inline int basic_tree_num_children(btnode *parent);
+static inline int bt_num_children(btnode *parent);
 
-static inline int basic_tree_num_nodes(btnode *root);
+static inline int bt_num_nodes(btnode *root);
 
-static inline int basic_tree_height(btnode *root);
+static inline int bt_height(btnode *root);
 
-static inline void basic_tree_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
+static inline void bt_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
 
-static inline int basic_tree_is_parent(btnode *parent, btnode *child);
+static inline int bt_is_parent(btnode *parent, btnode *child);
 
-static inline int basic_tree_is_ancestor(btnode *ancestor, btnode *descendant);
+static inline int bt_is_ancestor(btnode *ancestor, btnode *descendant);
 
-static inline int basic_tree_is_siblings(btnode *node1, btnode *node2);
+static inline int bt_is_siblings(btnode *node1, btnode *node2);
 
-static inline int basic_tree_is_root(btnode *node);
+static inline int bt_is_root(btnode *node);
 
-static inline int basic_tree_is_leaf(btnode *node);
+static inline int bt_is_leaf(btnode *node);
 
-static inline int basic_tree_is_alone(btnode *node);
+static inline int bt_is_alone(btnode *node);
 
-static inline void basic_tree_destroy(btnode *node, btdcf func, btdca args);
+static inline void bt_destroy(btnode *node, btdcf func, btdca args);
 
-static inline void basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
+static inline void bt_destroy_tree(btnode *node, btdcf func, btdca args);
 
 /*
  * private functions
  */
-btnode *__basic_tree_nth_child(btnode *parent, int pos);
-int __basic_tree_num_nodes(btnode *node);
-int __basic_tree_height(btnode *node);
-void __basic_tree_destroy_tree(btnode *node, btdcf func, btdca args);
-int __basic_tree_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
-void __basic_tree_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
+btnode *__bt_nth_child(btnode *parent, int pos);
+int __bt_num_nodes(btnode *node);
+int __bt_height(btnode *node);
+void __bt_destroy_tree(btnode *node, btdcf func, btdca args);
+int __bt_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
+void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args);
 
 /*
  * inline function definitions
  */
-static inline btnode *basic_tree_new(btnode_data data) {
+static inline btnode *bt_new(btnode_data data) {
 	btnode *node = (btnode *)malloc(sizeof(btnode));
-	INIT_LIST_HEAD(&(node->siblings));
-	INIT_LIST_HEAD(&(node->children));
+	BL_INIT_HEAD(&(node->siblings));
+	BL_INIT_HEAD(&(node->children));
 	node->parent = NULL;
 	node->data = data;
 	return node;
 }
 
-static inline void basic_tree_insert_after(btnode *node, btnode *sibling) {
-	list_add_after(&(node->siblings), &(sibling->siblings));
+static inline void bt_insert_after(btnode *node, btnode *sibling) {
+	bl_add_after(&(node->siblings), &(sibling->siblings));
 	node->parent = sibling->parent;
 }
 
-static inline void basic_tree_insert_before(btnode *node, btnode *sibling) {
-	list_add_after(&(node->siblings), sibling->siblings.prev);
+static inline void bt_insert_before(btnode *node, btnode *sibling) {
+	bl_add_after(&(node->siblings), sibling->siblings.prev);
 	node->parent = sibling->parent;
 }
 
-static inline void basic_tree_append(btnode *node, btnode *parent) {
-	list_add_after(&(node->siblings), parent->children.prev);
+static inline void bt_append(btnode *node, btnode *parent) {
+	bl_add_after(&(node->siblings), parent->children.prev);
 	node->parent = parent;
 }
 
-static inline void basic_tree_prepend(btnode *node, btnode *parent) {
-	list_add_after(&(node->siblings), &(parent->children));
+static inline void bt_prepend(btnode *node, btnode *parent) {
+	bl_add_after(&(node->siblings), &(parent->children));
 	node->parent = parent;
 }
 
-static inline btnode *basic_tree_unlink(btnode *node) {
+static inline btnode *bt_unlink(btnode *node) {
 	node->parent = NULL;
-	list_del(&(node->siblings));
+	bl_del(&(node->siblings));
 	return node;
 }
 
-static inline btnode *basic_tree_get_root(btnode *node) {
+static inline btnode *bt_get_root(btnode *node) {
 	btnode *ptr = node;
 	while (ptr->parent != NULL) {
 		ptr = ptr->parent;
@@ -183,7 +190,7 @@ static inline btnode *basic_tree_get_root(btnode *node) {
 	return ptr;
 }
 
-static inline int basic_tree_child_position(btnode *node) {
+static inline int bt_child_position(btnode *node) {
 	btnode *ptr;
 	int pos = 0;
 
@@ -191,7 +198,7 @@ static inline int basic_tree_child_position(btnode *node) {
 	if (node->parent == NULL)
 		return 0;
 
-	list_for_each_entry(ptr, &(node->parent->children), siblings) {
+	bl_for_each_entry(ptr, &(node->parent->children), siblings) {
 		if (ptr == node)
 			break;
 		pos++;
@@ -199,13 +206,13 @@ static inline int basic_tree_child_position(btnode *node) {
 	return pos;
 }
 
-static inline btnode *basic_tree_nth_child(btnode *parent, int pos) {
-	if (basic_tree_is_leaf(parent))
+static inline btnode *bt_nth_child(btnode *parent, int pos) {
+	if (bt_is_leaf(parent))
 		return NULL;
-	return __basic_tree_nth_child(parent, pos);
+	return __bt_nth_child(parent, pos);
 }
 
-static inline btnode *basic_tree_prev_sibling(btnode *node) {
+static inline btnode *bt_prev_sibling(btnode *node) {
 	if (node->parent == NULL)
 		return NULL;
 
@@ -215,7 +222,7 @@ static inline btnode *basic_tree_prev_sibling(btnode *node) {
 	return CONTAINER_OF(node->siblings.prev, btnode, siblings);
 }
 
-static inline btnode *basic_tree_next_sibling(btnode *node) {
+static inline btnode *bt_next_sibling(btnode *node) {
 	if (node->parent == NULL)
 		return NULL;
 
@@ -225,7 +232,7 @@ static inline btnode *basic_tree_next_sibling(btnode *node) {
 	return CONTAINER_OF(node->siblings.next, btnode, siblings);
 }
 
-static inline btnode *basic_tree_nth_sibling(btnode *node, int pos) {
+static inline btnode *bt_nth_sibling(btnode *node, int pos) {
 	/* if it has no parent, only itself is the 0th sibling */
 	if (node->parent == NULL)
 		if (pos == 0)
@@ -233,14 +240,14 @@ static inline btnode *basic_tree_nth_sibling(btnode *node, int pos) {
 		else
 			return NULL;
 
-	return __basic_tree_nth_child(node->parent, pos);
+	return __bt_nth_child(node->parent, pos);
 }
 
-static inline btnode *basic_tree_parent(btnode *node) {
+static inline btnode *bt_parent(btnode *node) {
 	return (node->parent);
 }
 
-static inline btnode *basic_tree_ancestor(btnode *node, int levels) {
+static inline btnode *bt_ancestor(btnode *node, int levels) {
 	btnode *ptr = node;
 
 	while (ptr != NULL && levels > 0) {
@@ -250,7 +257,7 @@ static inline btnode *basic_tree_ancestor(btnode *node, int levels) {
 	return ptr;
 }
 
-static inline int basic_tree_depth(btnode *node) {
+static inline int bt_depth(btnode *node) {
 	btnode *ptr = node;
 	int depth = 1;
 
@@ -261,50 +268,50 @@ static inline int basic_tree_depth(btnode *node) {
 	return depth;
 }
 
-static inline int basic_tree_num_children(btnode *parent) {
+static inline int bt_num_children(btnode *parent) {
 	btnode *ptr;
 	int num = 0;
 
-	list_for_each_entry(ptr, &(parent->children), siblings) {
+	bl_for_each_entry(ptr, &(parent->children), siblings) {
 		num++;
 	}
 	return num;
 }
 
-static inline int basic_tree_num_nodes(btnode *root) {
+static inline int bt_num_nodes(btnode *root) {
 	if (root == NULL)
 		return 0;
 
-	return __basic_tree_num_nodes(root);
+	return __bt_num_nodes(root);
 }
 
-static inline int basic_tree_height(btnode *root) {
+static inline int bt_height(btnode *root) {
 	if (root == NULL)
 		return 0;
 
-	return __basic_tree_height(root);
+	return __bt_height(root);
 }
 
-static inline void basic_tree_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
+static inline void bt_traverse(btnode *root, int max_depth, btto order, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
 	switch (order) {
 		case BASIC_TREE_ORDER_BFS:
-			__basic_tree_traverse_bfs(root, max_depth, meet_func, meet_args, done_func, done_args);
+			__bt_traverse_bfs(root, max_depth, meet_func, meet_args, done_func, done_args);
 			break;
 		case BASIC_TREE_ORDER_DFS:
-			__basic_tree_traverse_dfs(root, max_depth, meet_func, meet_args, done_func, done_args);
+			__bt_traverse_dfs(root, max_depth, meet_func, meet_args, done_func, done_args);
 			break;
 		default:
 			break;
 	}
 }
 
-static inline int basic_tree_is_parent(btnode *parent, btnode *child) {
+static inline int bt_is_parent(btnode *parent, btnode *child) {
 	if (child->parent == NULL)
 		return 0;
 	return (child->parent == parent);
 }
 
-static inline int basic_tree_is_ancestor(btnode *ancestor, btnode *descendant) {
+static inline int bt_is_ancestor(btnode *ancestor, btnode *descendant) {
 	btnode *ptr = descendant->parent;
 
 	while (ptr != NULL) {
@@ -315,13 +322,13 @@ static inline int basic_tree_is_ancestor(btnode *ancestor, btnode *descendant) {
 	return 0;
 }
 
-static inline int basic_tree_is_siblings(btnode *node1, btnode *node2) {
+static inline int bt_is_siblings(btnode *node1, btnode *node2) {
 	btnode *ptr;
 
 	if (node1->parent == NULL || node2->parent == NULL)
 		return 0;
 
-	list_for_each_entry(ptr, &(node1->parent->children), siblings) {
+	bl_for_each_entry(ptr, &(node1->parent->children), siblings) {
 		if (ptr == node2)
 			if (ptr != node1)
 				return 1;
@@ -329,30 +336,30 @@ static inline int basic_tree_is_siblings(btnode *node1, btnode *node2) {
 	return 0;
 }
 
-static inline int basic_tree_is_root(btnode *node) {
+static inline int bt_is_root(btnode *node) {
 	if (node == NULL)
 		return 0;
 	return (node->parent == NULL);
 }
 
-static inline int basic_tree_is_leaf(btnode *node) {
+static inline int bt_is_leaf(btnode *node) {
 	if (node == NULL)
 		return 0;
-	return (list_empty(&(node->children)));
+	return (bl_empty(&(node->children)));
 }
 
-static inline int basic_tree_is_alone(btnode *node) {
-	return (basic_tree_is_root(node) && basic_tree_is_leaf(node));
+static inline int bt_is_alone(btnode *node) {
+	return (bt_is_root(node) && bt_is_leaf(node));
 }
 
-static inline void basic_tree_destroy(btnode *node, btdcf func, btdca args) {
+static inline void bt_destroy(btnode *node, btdcf func, btdca args) {
 	if (func != NULL)
 		func(node->data, args);
 	free(node);
 }
 
-static inline void basic_tree_destroy_tree(btnode *node, btdcf func, btdca args) {
-	__basic_tree_destroy_tree(node, func, args);
+static inline void bt_destroy_tree(btnode *node, btdcf func, btdca args) {
+	__bt_destroy_tree(node, func, args);
 }
 
 /*

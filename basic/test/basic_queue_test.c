@@ -54,7 +54,7 @@ static void verify_queue(struct basic_queue *queue, int n, ...) {
 	va_start(a_list, n);
 
 	assert_int_equal(num, queue->num);
-	list_for_each_entry(elem, &queue->head, list) {
+	bl_for_each_entry(elem, &queue->head, list) {
 		assert_int_equal(va_arg(a_list, int), ((teste *)(elem->data))->num);
 		num--;
 	}
