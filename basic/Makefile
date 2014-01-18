@@ -123,6 +123,18 @@ $(BIN_DIR)/basic_queue_test : $(QUEUE_FILES) $(CMOCKA_SRC) $(CMOCKA_HEADERS)
 basic_queue_test : $(BIN_DIR)/basic_queue_test
 	$(BIN_DIR)/basic_queue_test
 
+# run all tests
+
+CMOCKA_TESTS = \
+	basic_list_test \
+	basic_stack_test \
+	basic_queue_test \
+	basic_tree_test \
+	customio_test
+
+test_all:
+	make $(CMOCKA_TESTS)
+
 #
 # end of Cmocka test
 #
