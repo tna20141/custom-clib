@@ -12,76 +12,76 @@
 /*
  * type definitions
  */
-typedef void * basic_stack_data;
+typedef void * bs_data;
 
-struct basic_stack_elem {
-	basic_stack_data data;
-	struct basic_stack_elem *next;
+struct bs_elem {
+	bs_data data;
+	struct bs_elem *next;
 };
-typedef struct basic_stack_elem bs_elem;
+typedef struct bs_elem bs_elem;
 
-struct basic_stack {
+struct bs_stack {
 	bs_elem *top;
 	int num;
 };
 
-typedef void basic_stack_cleanup_ret;
-typedef void * basic_stack_cleanup_args;
-typedef basic_stack_cleanup_ret (*basic_stack_cleanup_func)(basic_stack_data, basic_stack_cleanup_args);
+typedef void bs_cleanup_ret;
+typedef void * bs_cleanup_args;
+typedef bs_cleanup_ret (*bs_cleanup_func)(bs_data, bs_cleanup_args);
 
 /*
  * API functions
  */
-static inline void basic_stack_init(struct basic_stack *stack);
+static inline void bs_init(struct bs_stack *stack);
 
-static inline int basic_stack_is_empty(struct basic_stack *stack);
+static inline int bs_is_empty(struct bs_stack *stack);
 
-static inline int basic_stack_num_elem(struct basic_stack *stack);
+static inline int bs_num_elem(struct bs_stack *stack);
 
-static inline void basic_stack_push(basic_stack_data data, struct basic_stack *stack);
+static inline void bs_push(bs_data data, struct bs_stack *stack);
 
-static inline basic_stack_data basic_stack_pop(struct basic_stack *stack);
+static inline bs_data bs_pop(struct bs_stack *stack);
 
-static inline basic_stack_data basic_stack_peek(struct basic_stack *stack);
+static inline bs_data bs_peek(struct bs_stack *stack);
 
-static inline void basic_stack_destroy(struct basic_stack *stack, basic_stack_cleanup_func func, basic_stack_cleanup_args args);
+static inline void bs_destroy(struct bs_stack *stack, bs_cleanup_func func, bs_cleanup_args args);
 
 /*
  * API macros
  */
-#define BASIC_STACK_FOREACH(pos, type, stack)		\
-	for(pos = (type **)MEMBER_OF_SAFE((stack)->top, basic_stack_data, OFFSET_OF(bs_elem, data));	\
+#define BS_FOREACH(pos, type, stack)		\
+	for(pos = (type **)MEMBER_OF_SAFE((stack)->top, bs_data, OFFSET_OF(bs_elem, data));	\
 		pos != NULL;		\
-		pos = (type **)MEMBER_OF_SAFE(CONTAINER_OF((basic_stack_data *)pos, bs_elem, data)->next, \
-			basic_stack_data, OFFSET_OF(bs_elem, data)))
+		pos = (type **)MEMBER_OF_SAFE(CONTAINER_OF((bs_data *)pos, bs_elem, data)->next, \
+			bs_data, OFFSET_OF(bs_elem, data)))
 
-#define BASIC_STACK_FOREACH_SAFE(pos, n, type, stack)		\
-	for(pos = (type **)MEMBER_OF_SAFE((stack)->top, basic_stack_data, OFFSET_OF(bs_elem, data)),	\
+#define BS_FOREACH_SAFE(pos, n, type, stack)		\
+	for(pos = (type **)MEMBER_OF_SAFE((stack)->top, bs_data, OFFSET_OF(bs_elem, data)),	\
 		n = (type **)MEMBER_OF_SAFE(DEREF(MEMBER_OF_SAFE(			\
-			CONTAINER_OF_SAFE((basic_stack_data *)pos, bs_elem, data), bs_elem *, OFFSET_OF(bs_elem, next))), \
-			basic_stack_data, OFFSET_OF(bs_elem, data));	\
+			CONTAINER_OF_SAFE((bs_data *)pos, bs_elem, data), bs_elem *, OFFSET_OF(bs_elem, next))), \
+			bs_data, OFFSET_OF(bs_elem, data));	\
 		pos != NULL;		\
 		pos = n, n = (type **)MEMBER_OF_SAFE(DEREF(MEMBER_OF_SAFE(			\
-			CONTAINER_OF_SAFE((basic_stack_data *)n, bs_elem, data), bs_elem *, OFFSET_OF(bs_elem, next))), \
-			basic_stack_data, OFFSET_OF(bs_elem, data)))
+			CONTAINER_OF_SAFE((bs_data *)n, bs_elem, data), bs_elem *, OFFSET_OF(bs_elem, next))), \
+			bs_data, OFFSET_OF(bs_elem, data)))
 
 /*
  * inline function definitions
  */
-static inline void basic_stack_init(struct basic_stack *stack) {
+static inline void bs_init(struct bs_stack *stack) {
 	stack->top = NULL;
 	stack->num = 0;
 }
 
-static inline int basic_stack_is_empty(struct basic_stack *stack) {
+static inline int bs_is_empty(struct bs_stack *stack) {
 	return (stack->num == 0);
 }
 
-static inline int basic_stack_num_elem(struct basic_stack *stack) {
+static inline int bs_num_elem(struct bs_stack *stack) {
 	return (stack->num);
 }
 
-static inline void basic_stack_push(basic_stack_data data, struct basic_stack *stack) {
+static inline void bs_push(bs_data data, struct bs_stack *stack) {
 	bs_elem *neww = (bs_elem *)malloc(sizeof(bs_elem));
 
 	neww->data = data;
@@ -90,9 +90,9 @@ static inline void basic_stack_push(basic_stack_data data, struct basic_stack *s
 	stack->num++;
 }
 
-static inline basic_stack_data basic_stack_pop(struct basic_stack *stack) {
+static inline bs_data bs_pop(struct bs_stack *stack) {
 	bs_elem *popped = stack->top;
-	basic_stack_data data;
+	bs_data data;
 
 	if (stack->num > 0) {
 		data = popped->data;
@@ -105,7 +105,7 @@ static inline basic_stack_data basic_stack_pop(struct basic_stack *stack) {
 	}
 }
 
-static inline basic_stack_data basic_stack_peek(struct basic_stack *stack) {
+static inline bs_data bs_peek(struct bs_stack *stack) {
 
 	if (stack->num > 0) {
 		return stack->top->data;
@@ -114,11 +114,11 @@ static inline basic_stack_data basic_stack_peek(struct basic_stack *stack) {
 	}
 }
 
-static inline void basic_stack_destroy(struct basic_stack *stack, basic_stack_cleanup_func func, basic_stack_cleanup_args args) {
-	basic_stack_data data;
+static inline void bs_destroy(struct bs_stack *stack, bs_cleanup_func func, bs_cleanup_args args) {
+	bs_data data;
 
 	while (stack->num > 0) {
-		data = basic_stack_pop(stack);
+		data = bs_pop(stack);
 		if (func != NULL)
 			func(data, args);
 	}
