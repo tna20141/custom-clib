@@ -12,115 +12,115 @@
 /*
  * type definitions
  */
-typedef void * basic_queue_data;
+typedef void * bq_data;
 
-struct basic_queue_elem {
+struct bq_elem {
 	struct bl_head list;
-	basic_queue_data data;
+	bq_data data;
 };
-typedef struct basic_queue_elem bq_elem;
+typedef struct bq_elem bq_elem;
 
-struct basic_queue {
+struct bq_queue {
 	struct bl_head head;
 	int num;
 };
 
-typedef void basic_queue_cleanup_ret;
-typedef void * basic_queue_cleanup_args;
-typedef basic_queue_cleanup_ret (*basic_queue_cleanup_func)(basic_queue_data, basic_queue_cleanup_args);
+typedef void bq_cleanup_ret;
+typedef void * bq_cleanup_args;
+typedef bq_cleanup_ret (*bq_cleanup_func)(bq_data, bq_cleanup_args);
 
 /*
  * API functions
  */
-static inline void basic_queue_init(struct basic_queue *queue);
+static inline void bq_init(struct bq_queue *queue);
 
-static inline int basic_queue_is_empty(struct basic_queue *queue);
+static inline int bq_is_empty(struct bq_queue *queue);
 
-static inline int basic_queue_num_elem(struct basic_queue *queue);
+static inline int bq_num_elem(struct bq_queue *queue);
 
-static inline void basic_queue_reverse(struct basic_queue *queue);
+static inline void bq_reverse(struct bq_queue *queue);
 
-static inline void basic_queue_push_head(basic_queue_data data, struct basic_queue *queue);
+static inline void bq_push_head(bq_data data, struct bq_queue *queue);
 
-static inline void basic_queue_push_tail(basic_queue_data data, struct basic_queue *queue);
+static inline void bq_push_tail(bq_data data, struct bq_queue *queue);
 
-static inline void basic_queue_push(basic_queue_data data, struct basic_queue *queue);
+static inline void bq_push(bq_data data, struct bq_queue *queue);
 
-static inline basic_queue_data basic_queue_pop_head(struct basic_queue *queue);
+static inline bq_data bq_pop_head(struct bq_queue *queue);
 
-static inline basic_queue_data basic_queue_pop_tail(struct basic_queue *queue);
+static inline bq_data bq_pop_tail(struct bq_queue *queue);
 
-static inline basic_queue_data basic_queue_pop(struct basic_queue *queue);
+static inline bq_data bq_pop(struct bq_queue *queue);
 
-static inline basic_queue_data basic_queue_peek_head(struct basic_queue *queue);
+static inline bq_data bq_peek_head(struct bq_queue *queue);
 
-static inline basic_queue_data basic_queue_peek_tail(struct basic_queue *queue);
+static inline bq_data bq_peek_tail(struct bq_queue *queue);
 
-static inline basic_queue_data basic_queue_peek(struct basic_queue *queue);
+static inline bq_data bq_peek(struct bq_queue *queue);
 
-static inline void basic_queue_destroy(struct basic_queue *queue, basic_queue_cleanup_func func, basic_queue_cleanup_args args);
+static inline void bq_destroy(struct bq_queue *queue, bq_cleanup_func func, bq_cleanup_args args);
 
 /*
  * private functions
  */
-static inline void __basic_queue_push(basic_queue_data data, struct basic_queue *queue, int head);
-static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int head);
-static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int head);
+static inline void __bq_push(bq_data data, struct bq_queue *queue, int head);
+static inline bq_data __bq_pop(struct bq_queue *queue, int head);
+static inline bq_data __bq_peek(struct bq_queue *queue, int head);
 
-#define BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, direction)		\
+#define BQ_FOREACH_DIRECTION(pos, type, queue, direction)		\
 	for(pos = (type **)MEMBER_OF(CONTAINER_OF((queue)->head.direction, bq_elem, list),	\
-			basic_queue_data, OFFSET_OF(bq_elem, data));	\
-		MEMBER_OF(CONTAINER_OF((basic_queue_data *)pos, bq_elem, data),		\
+			bq_data, OFFSET_OF(bq_elem, data));	\
+		MEMBER_OF(CONTAINER_OF((bq_data *)pos, bq_elem, data),		\
 			struct bl_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
-		pos = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)pos,		\
-			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
+		pos = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((bq_data *)pos,		\
+			bq_elem, data)->list.direction, bq_elem, list), bq_data, OFFSET_OF(bq_elem, data)))
 
-#define BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, n, type, queue, direction)	\
+#define BQ_FOREACH_DIRECTION_SAFE(pos, n, type, queue, direction)	\
 	for(pos = (type **)MEMBER_OF(CONTAINER_OF((queue)->head.direction, bq_elem, list),	\
-			basic_queue_data, OFFSET_OF(bq_elem, data)),	\
-		n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)pos,		\
-			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data));		\
-		MEMBER_OF(CONTAINER_OF((basic_queue_data *)pos, bq_elem, data),		\
+			bq_data, OFFSET_OF(bq_elem, data)),	\
+		n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((bq_data *)pos,		\
+			bq_elem, data)->list.direction, bq_elem, list), bq_data, OFFSET_OF(bq_elem, data));		\
+		MEMBER_OF(CONTAINER_OF((bq_data *)pos, bq_elem, data),		\
 			struct bl_head, OFFSET_OF(bq_elem, list)) != &(queue)->head;	\
-		pos = n, n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((basic_queue_data *)n,		\
-			bq_elem, data)->list.direction, bq_elem, list), basic_queue_data, OFFSET_OF(bq_elem, data)))
+		pos = n, n = (type **)MEMBER_OF(CONTAINER_OF(CONTAINER_OF((bq_data *)n,		\
+			bq_elem, data)->list.direction, bq_elem, list), bq_data, OFFSET_OF(bq_elem, data)))
 
 /*
  * API macros
  */
-#define BASIC_QUEUE_FOREACH_HEAD(pos, type, queue)		\
-	BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, next)
+#define BQ_FOREACH_HEAD(pos, type, queue)		\
+	BQ_FOREACH_DIRECTION(pos, type, queue, next)
 
-#define BASIC_QUEUE_FOREACH_HEAD_SAFE(pos, n, type, queue)		\
-	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, n, type, queue, next)
+#define BQ_FOREACH_HEAD_SAFE(pos, n, type, queue)		\
+	BQ_FOREACH_DIRECTION_SAFE(pos, n, type, queue, next)
 
-#define BASIC_QUEUE_FOREACH_TAIL(pos, type, queue)		\
-	BASIC_QUEUE_FOREACH_DIRECTION(pos, type, queue, prev)
+#define BQ_FOREACH_TAIL(pos, type, queue)		\
+	BQ_FOREACH_DIRECTION(pos, type, queue, prev)
 
-#define BASIC_QUEUE_FOREACH_TAIL_SAFE(pos, n, type, queue)		\
-	BASIC_QUEUE_FOREACH_DIRECTION_SAFE(pos, n, type, queue, prev)
+#define BQ_FOREACH_TAIL_SAFE(pos, n, type, queue)		\
+	BQ_FOREACH_DIRECTION_SAFE(pos, n, type, queue, prev)
 
-#define BASIC_QUEUE_FOREACH BASIC_QUEUE_FOREACH_HEAD
+#define BQ_FOREACH BQ_FOREACH_HEAD
 
-#define BASIC_QUEUE_FOREACH_SAFE BASIC_QUEUE_FOREACH_HEAD_SAFE
+#define BQ_FOREACH_SAFE BQ_FOREACH_HEAD_SAFE
 
 /*
  * static function definitions
  */
-static inline void basic_queue_init(struct basic_queue *queue) {
+static inline void bq_init(struct bq_queue *queue) {
 	BL_INIT_HEAD(&queue->head);
 	queue->num = 0;
 }
 
-static inline int basic_queue_is_empty(struct basic_queue *queue) {
+static inline int bq_is_empty(struct bq_queue *queue) {
 	return (queue->num == 0);
 }
 
-static inline int basic_queue_num_elem(struct basic_queue *queue) {
+static inline int bq_num_elem(struct bq_queue *queue) {
 	return (queue->num);
 }
 
-static inline void basic_queue_reverse(struct basic_queue *queue) {
+static inline void bq_reverse(struct bq_queue *queue) {
 	struct bl_head *ptr, *n;
 
 	bl_for_each_safe(ptr, n, &queue->head) {
@@ -129,53 +129,53 @@ static inline void basic_queue_reverse(struct basic_queue *queue) {
 	SWAP(queue->head.next, queue->head.prev);
 }
 
-static inline void basic_queue_push_head(basic_queue_data data, struct basic_queue *queue) {
-	__basic_queue_push(data, queue, 1);
+static inline void bq_push_head(bq_data data, struct bq_queue *queue) {
+	__bq_push(data, queue, 1);
 }
 
-static inline void basic_queue_push_tail(basic_queue_data data, struct basic_queue *queue) {
-	__basic_queue_push(data, queue, 0);
+static inline void bq_push_tail(bq_data data, struct bq_queue *queue) {
+	__bq_push(data, queue, 0);
 }
 
-static inline void basic_queue_push(basic_queue_data data, struct basic_queue *queue) {
-	__basic_queue_push(data, queue, 0);
+static inline void bq_push(bq_data data, struct bq_queue *queue) {
+	__bq_push(data, queue, 0);
 }
 
-static inline basic_queue_data basic_queue_pop_head(struct basic_queue *queue) {
-	return __basic_queue_pop(queue, 1);
+static inline bq_data bq_pop_head(struct bq_queue *queue) {
+	return __bq_pop(queue, 1);
 }
 
-static inline basic_queue_data basic_queue_pop_tail(struct basic_queue *queue) {
-	return __basic_queue_pop(queue, 0);
+static inline bq_data bq_pop_tail(struct bq_queue *queue) {
+	return __bq_pop(queue, 0);
 }
 
-static inline basic_queue_data basic_queue_pop(struct basic_queue *queue) {
-	return __basic_queue_pop(queue, 1);
+static inline bq_data bq_pop(struct bq_queue *queue) {
+	return __bq_pop(queue, 1);
 }
 
-static inline basic_queue_data basic_queue_peek_head(struct basic_queue *queue) {
-	return __basic_queue_peek(queue, 1);
+static inline bq_data bq_peek_head(struct bq_queue *queue) {
+	return __bq_peek(queue, 1);
 }
 
-static inline basic_queue_data basic_queue_peek_tail(struct basic_queue *queue) {
-	return __basic_queue_peek(queue, 0);
+static inline bq_data bq_peek_tail(struct bq_queue *queue) {
+	return __bq_peek(queue, 0);
 }
 
-static inline basic_queue_data basic_queue_peek(struct basic_queue *queue) {
-	return __basic_queue_peek(queue, 1);
+static inline bq_data bq_peek(struct bq_queue *queue) {
+	return __bq_peek(queue, 1);
 }
 
-static inline void basic_queue_destroy(struct basic_queue *queue, basic_queue_cleanup_func func, basic_queue_cleanup_args args) {
-	basic_queue_data data;
+static inline void bq_destroy(struct bq_queue *queue, bq_cleanup_func func, bq_cleanup_args args) {
+	bq_data data;
 
 	while (queue->num > 0) {
-		data = basic_queue_pop(queue);
+		data = bq_pop(queue);
 		if (func != NULL)
 			func(data, args);
 	}
 }
 
-static inline void __basic_queue_push(basic_queue_data data, struct basic_queue *queue, int head) {
+static inline void __bq_push(bq_data data, struct bq_queue *queue, int head) {
 	bq_elem *elem = (bq_elem *)malloc(sizeof(bq_elem));
 
 	BL_INIT_HEAD(&elem->list);
@@ -189,9 +189,9 @@ static inline void __basic_queue_push(basic_queue_data data, struct basic_queue 
 	queue->num++;
 }
 
-static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int head) {
+static inline bq_data __bq_pop(struct bq_queue *queue, int head) {
 	struct bl_head *node;
-	basic_queue_data data;
+	bq_data data;
 	bq_elem *elem;
 
 	if (head)
@@ -211,9 +211,9 @@ static inline basic_queue_data __basic_queue_pop(struct basic_queue *queue, int 
 	}
 }
 
-static inline basic_queue_data __basic_queue_peek(struct basic_queue *queue, int head) {
+static inline bq_data __bq_peek(struct bq_queue *queue, int head) {
 	struct bl_head *node;
-	basic_queue_data data;
+	bq_data data;
 
 	if (head)
 		node = queue->head.next;

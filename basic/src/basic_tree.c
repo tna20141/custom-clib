@@ -145,7 +145,7 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 
 	btnode *current, *ptr, *n;
 	int cur_nodes = 0, next_nodes = 0;
-	struct basic_queue queue;
+	struct bq_queue queue;
 	int depth = 0;
 
 	if (root == NULL)
@@ -154,17 +154,17 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 	if (max_depth == 0)
 		return;
 
-	basic_queue_init(&queue);
+	bq_init(&queue);
 
 	if (meet_func != NULL)
 		if (meet_func(root->data, meet_args, NULL))
 			goto ret;
-	basic_queue_push((void *)root, &queue);
+	bq_push((void *)root, &queue);
 	cur_nodes = 1;
 	depth = 1;
 
-	while (!basic_queue_is_empty(&queue)) {
-		current = (btnode *)basic_queue_pop(&queue);
+	while (!bq_is_empty(&queue)) {
+		current = (btnode *)bq_pop(&queue);
 		cur_nodes--;
 
 		if (depth == max_depth)
@@ -174,7 +174,7 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 			if (meet_func != NULL)
 				if (meet_func(ptr->data, meet_args, NULL))
 					goto ret;
-			basic_queue_push((void *)ptr, &queue);
+			bq_push((void *)ptr, &queue);
 			next_nodes++;
 		}
 
@@ -193,7 +193,7 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 
 	ret:
 
-	basic_queue_destroy(&queue, NULL, NULL);
+	bq_destroy(&queue, NULL, NULL);
 }
 
 /*
