@@ -45,7 +45,6 @@ typedef struct bt_node btnode;
 
 /* control struct for traversal, contains info about current node */
 struct bt_node_info {
-	/* TODO: currently not implemented yet */
 	int is_leaf;
 };
 typedef struct bt_node_info btinfo;

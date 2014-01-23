@@ -117,6 +117,7 @@ int __bt_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, b
 	/* TODO: btinfo is not implemented yet, currently inserting NULL */
 
 	btnode *ptr, *n;
+	btinfo node_info;
 
 	if (depth == 0)
 		return 0;
@@ -124,8 +125,13 @@ int __bt_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, b
 	if (node == NULL)
 		return 0;
 
+	if (bl_empty(&node->children))
+		node_info.is_leaf = 1;
+	else
+		node_info.is_leaf = 0;
+
 	if (meet_func != NULL)
-		if (meet_func(node->data, meet_args, NULL))
+		if (meet_func(node->data, meet_args, &node_info))
 			return 1;
 
 	bl_for_each_entry_safe(ptr, n, &(node->children), siblings) {
@@ -134,7 +140,7 @@ int __bt_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, b
 	}
 
 	if (done_func != NULL)
-		if(done_func(node->data, done_args, NULL))
+		if(done_func(node->data, done_args, &node_info))
 			return 1;
 
 	return 0;
@@ -147,6 +153,7 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 	int cur_nodes = 0, next_nodes = 0;
 	struct bq_queue queue;
 	int depth = 0;
+	btinfo node_info;
 
 	if (root == NULL)
 		return;
@@ -156,9 +163,16 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 
 	bq_init(&queue);
 
-	if (meet_func != NULL)
-		if (meet_func(root->data, meet_args, NULL))
+	if (meet_func != NULL) {
+		if (bl_empty(&root->children))
+			node_info.is_leaf = 1;
+		else
+			node_info.is_leaf = 0;
+
+		if (meet_func(root->data, meet_args, &node_info))
 			goto ret;
+	}
+
 	bq_push((void *)root, &queue);
 	cur_nodes = 1;
 	depth = 1;
@@ -171,9 +185,16 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 			goto done;
 
 		bl_for_each_entry_safe(ptr, n, &(current->children), siblings) {
-			if (meet_func != NULL)
-				if (meet_func(ptr->data, meet_args, NULL))
+			if (meet_func != NULL) {
+				if (bl_empty(&ptr->children))
+					node_info.is_leaf = 1;
+				else
+					node_info.is_leaf = 0;
+
+				if (meet_func(ptr->data, meet_args, &node_info))
 					goto ret;
+			}
+
 			bq_push((void *)ptr, &queue);
 			next_nodes++;
 		}
@@ -186,9 +207,15 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 
 		done:
 
-		if (done_func != NULL)
-			if (done_func(current->data, done_args, NULL))
+		if (done_func != NULL) {
+			if (bl_empty(&current->children))
+					node_info.is_leaf = 1;
+				else
+					node_info.is_leaf = 0;
+
+			if (done_func(current->data, done_args, &node_info))
 				goto ret;
+		}
 	}
 
 	ret:

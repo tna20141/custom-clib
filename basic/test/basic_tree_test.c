@@ -51,6 +51,7 @@ typedef struct simple_data sd;
 struct test_struct {
 	int n1;
 	int n2;
+	int n3;
 };
 
 /* function prototypes (for the ones that need one) */
@@ -60,7 +61,29 @@ void cleanup_callback(void *node_data, void *data);
 int meet_callback(void *node_data, void *data, btinfo *info);
 int done_callback(void *node_data, void *data, btinfo *info);
 
-/* fixture set up function */
+/*
+ * fixture set up function
+ *
+ * the test tree is as follow:
+ *
+ *	one
+ *  |---three
+ *  |   |---twelve
+ *  |   |---eleven
+ *  |       |---fourteen
+ *  |       |---sixteen
+ *  |       |---fifteen
+ *  |       |---thirteen
+ *  |---two
+ *  |---four
+ *		|---five
+ *          |---ten
+ *          |---six
+ *          |---seven
+ *          |---nine
+ *          |---eight
+ *
+ */
 static void setup_tree(void **state) {
 	sd* data;
 	btnode* node;
@@ -456,6 +479,8 @@ static void test_traverse(void **state) {
 	ts1.n2 = 50;
 	ts2.n1 = 3;
 	ts2.n2 = 60;
+	ts1.n3 = 0;
+	ts2.n3 = 0;
 	bt_traverse(test_root, -1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("123212212311214214316216315215313213311333222342521021036263727392938283534313", test_str);
 
@@ -551,6 +576,23 @@ static void test_traverse(void **state) {
 	test_num = 0;
 	bt_traverse(NULL, -1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
 	assert_string_equal("", test_str);
+
+	/* test node info while parsing */
+	ts1.n1 = 2;
+	ts1.n2 = 50;
+	ts2.n1 = 3;
+	ts2.n2 = 60;
+	ts1.n3 = 1;
+	ts2.n3 = 1;
+	test_str[0] = '\0';
+	test_num = 0;
+	bt_traverse(test_root, -1, BT_ORDER_DFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1232112113334252534313", test_str);
+
+	test_str[0] = '\0';
+	test_num = 0;
+	bt_traverse(test_root, -1, BT_ORDER_BFS, meet_callback, (void *)&ts1, done_callback, (void *)&ts2);
+	assert_string_equal("1232421311233524311353", test_str);
 }
 
 /*
@@ -591,6 +633,11 @@ int meet_callback(void *node_data, void *data, btinfo *info) {
 	sd *ndata = (sd *)node_data;
 	char buf[4];
 
+	if (ts->n3 == 1) {
+		if (info->is_leaf == 1)
+			return 0;
+	}
+
 	snprintf(buf, 4, "%d", ndata->n);
 	strcat(test_str, buf);
 	snprintf(buf, 4, "%d", ts->n1);
@@ -608,6 +655,11 @@ int done_callback(void *node_data, void *data, btinfo *info) {
 	struct test_struct *ts = (struct test_struct *)data;
 	sd *ndata = (sd *)node_data;
 	char buf[4];
+
+	if (ts->n3 == 1) {
+		if (info->is_leaf == 1)
+			return 0;
+	}
 
 	snprintf(buf, 4, "%d", ndata->n);
 	strcat(test_str, buf);
