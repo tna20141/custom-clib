@@ -138,3 +138,21 @@ test_all:
 #
 # end of Cmocka test
 #
+
+#
+# manual test
+#
+
+# basic utils test
+
+UTILS_SRCS = $(SRC_DIR)/basic_utils.c
+
+UTILS_HEADERS = $(INC_DIR)/basic_utils.h
+
+UTILS_FILES = $(UTILS_SRCS) $(UTILS_HEADERS) $(TEST_DIR)/basic_utils_test.c
+
+$(BIN_DIR)/basic_utils_test: $(UTILS_FILES)
+	$(CC) $(UTILS_SRCS) $(TEST_DIR)/basic_utils_test.c -I $(INC_DIR) -o $@
+
+basic_utils_test: $(BIN_DIR)/basic_utils_test
+	$(BIN_DIR)/basic_utils_test
