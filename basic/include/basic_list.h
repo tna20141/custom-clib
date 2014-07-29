@@ -11,7 +11,7 @@
  * using the generic single-entry routines.
  */
 
-#include "basic_general.h"
+#include "basic.h"
 
 struct bl_head {
 	struct bl_head *next, *prev;
@@ -367,7 +367,7 @@ static inline void bl_splice_tail_init(struct bl_head *list,
  * @member:	the name of the list_struct within the struct.
  */
 #define bl_entry(ptr, type, member) \
-	CONTAINER_OF(ptr, type, member)
+	container_of(ptr, type, member)
 
 /**
  * bl_first_entry - get the first element from a list

@@ -61,7 +61,7 @@ LIST_CCFLAGS =
 
 LIST_SRCS =
 
-LIST_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_list.h
+LIST_HEADERS = $(INC_DIR)/basic.h $(INC_DIR)/basic_list.h
 
 LIST_FILES = $(LIST_HEADERS) $(TEST_DIR)/basic_list_test.c
 
@@ -78,7 +78,7 @@ TREE_CCFLAGS =
 
 TREE_SRCS = $(SRC_DIR)/basic_tree.c
 
-TREE_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_list.h $(INC_DIR)/basic_tree.h
+TREE_HEADERS = $(INC_DIR)/basic.h $(INC_DIR)/basic_list.h $(INC_DIR)/basic_tree.h
 
 TREE_FILES = $(TREE_SRCS) $(TREE_HEADERS) $(TEST_DIR)/basic_tree_test.c
 
@@ -95,7 +95,7 @@ STACK_CCFLAGS =
 
 STACK_SRCS =
 
-STACK_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_stack.h
+STACK_HEADERS = $(INC_DIR)/basic.h $(INC_DIR)/basic_stack.h
 
 STACK_FILES = $(STACK_SRCS) $(STACK_HEADERS) $(TEST_DIR)/basic_stack_test.c
 
@@ -112,7 +112,7 @@ QUEUE_CCFLAGS =
 
 QUEUE_SRCS =
 
-QUEUE_HEADERS = $(INC_DIR)/basic_general.h $(INC_DIR)/basic_queue.h
+QUEUE_HEADERS = $(INC_DIR)/basic.h $(INC_DIR)/basic_queue.h
 
 QUEUE_FILES = $(QUEUE_SRCS) $(QUEUE_HEADERS) $(TEST_DIR)/basic_queue_test.c
 

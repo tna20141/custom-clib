@@ -19,7 +19,7 @@
 #include <cmocka.h>
 #include <stdlib.h>
 #include <string.h>
-#include <basic_general.h>
+#include <basic.h>
 #include <basic_stack.h>
 
 struct test_entry {
@@ -31,7 +31,8 @@ typedef struct test_entry teste;
 int test_num1;
 int test_num2;
 
-static void cleanup_func(void *e, void *args) {
+static void cleanup_func(void *e, void *args)
+{
 	int data = *((int *)args);
 
 	test_num1 = 1;
@@ -45,7 +46,8 @@ static void cleanup_func(void *e, void *args) {
 	}
 }
 
-static void verify_stack(struct bs_stack* stack, int n, ...) {
+static void verify_stack(struct bs_stack* stack, int n, ...)
+{
 	int i;
 	bs_elem *ptr;
 	va_list a_list;
@@ -59,7 +61,8 @@ static void verify_stack(struct bs_stack* stack, int n, ...) {
 	assert_int_equal(NULL, ptr);
 }
 
-static void test_init(void **state) {
+static void test_init(void **state)
+{
 	struct bs_stack stack;
 
 	bs_init(&stack);
@@ -67,7 +70,8 @@ static void test_init(void **state) {
 	assert_int_equal(0, stack.num);
 }
 
-static void test_push_pop_peek(void **state) {
+static void test_push_pop_peek(void **state)
+{
 	struct bs_stack stack;
 	teste e1, e2, e3, e4, *e;
 
@@ -77,7 +81,7 @@ static void test_push_pop_peek(void **state) {
 	e3.num = 3;
 	e4.num = 4;
 
-	bs_push((void *)&e1, &stack);
+	assert_int_equal(BE_OK, bs_push((void *)&e1, &stack));
 	verify_stack(&stack, 1, 1);
 
 	e = (teste *)bs_peek(&stack);
@@ -132,7 +136,8 @@ static void test_push_pop_peek(void **state) {
 	assert_int_equal(NULL, e);
 }
 
-static void test_is_empty(void **state) {
+static void test_is_empty(void **state)
+{
 	teste e;
 	struct bs_stack stack;
 
@@ -142,7 +147,8 @@ static void test_is_empty(void **state) {
 	assert_int_equal(0, bs_is_empty(&stack));
 }
 
-static void test_foreach(void **state) {
+static void test_foreach(void **state)
+{
 	struct bs_stack stack;
 	teste e1, e2, e3, **e, **ee;
 	int n = 0;
@@ -152,20 +158,20 @@ static void test_foreach(void **state) {
 	e2.num = 2;
 	e3.num = 3;
 
-	BS_FOREACH(e, teste, &stack)
+	bs_for_each(e, teste, &stack)
 		n++;
 	assert_int_equal(0, n);
-	BS_FOREACH_SAFE(e, ee, teste, &stack)
+	bs_for_each_safe(e, ee, teste, &stack)
 		n++;
 	assert_int_equal(0, n);
 
 	bs_push((void *)&e1, &stack);
-	BS_FOREACH(e, teste, &stack) {
+	bs_for_each(e, teste, &stack) {
 		n++;
 		n += (*e)->num;
 	}
 	assert_int_equal(2, n);
-	BS_FOREACH_SAFE(e, ee, teste, &stack) {
+	bs_for_each_safe(e, ee, teste, &stack) {
 		n++;
 		n += (*e)->num;
 		n += (*e)->num;
@@ -174,35 +180,36 @@ static void test_foreach(void **state) {
 
 	bs_push((void *)&e2, &stack);
 	n = 2;
-	BS_FOREACH(e, teste, &stack) {
+	bs_for_each(e, teste, &stack) {
 		assert_int_equal(n, (*e)->num);
 		n--;
 	}
 	n = 2;
-	BS_FOREACH_SAFE(e, ee, teste, &stack) {
+	bs_for_each_safe(e, ee, teste, &stack) {
 		assert_int_equal(n, (*e)->num);
 		n--;
 	}
 
 	bs_push((void *)&e3, &stack);
 	n = 3;
-	BS_FOREACH(e, teste, &stack) {
+	bs_for_each(e, teste, &stack) {
 		assert_int_equal(n, (*e)->num);
 		n--;
 	}
 	n = 3;
-	BS_FOREACH_SAFE(e, ee, teste, &stack) {
+	bs_for_each_safe(e, ee, teste, &stack) {
 		assert_int_equal(n, (*e)->num);
 		n--;
 	}
 
-	BS_FOREACH_SAFE(e, ee, teste, &stack) {
+	bs_for_each_safe(e, ee, teste, &stack) {
 		bs_pop(&stack);
 	}
 	assert_int_equal(1, bs_is_empty(&stack));
 }
 
-static void test_num_elem(void **state) {
+static void test_num_elem(void **state)
+{
 	struct bs_stack stack;
 	teste e1, e2, e3, e4, *e;
 
@@ -242,7 +249,8 @@ static void test_num_elem(void **state) {
 	assert_int_equal(0, bs_num_elem(&stack));
 }
 
-static void test_destroy(void **state) {
+static void test_destroy(void **state)
+{
 	struct bs_stack stack;
 	teste e1, e2, e3, e4, *e;
 	int temp = 1;
@@ -301,7 +309,8 @@ static void test_destroy(void **state) {
 }
 
 /* main function */
-int main(void) {
+int main(void)
+{
 	const UnitTest tests[] = {
 		unit_test(test_init),
 		unit_test(test_push_pop_peek),

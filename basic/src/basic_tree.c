@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <basic.h>
 #include <basic_tree.h>
 #include <basic_queue.h>
 
@@ -12,13 +13,13 @@
 #define btdca bt_data_clean_args
 #define btdcf bt_data_clean_func
 #define btto bt_traverse_order
-#define btec bt_error_code
 
 /*
  * function definitions
  */
-btec bt_insert(btnode *node, btnode *parent, int pos) {
-	btnode *ptr;
+basic_ec bt_insert(btnode_t *node, btnode_t *parent, int pos)
+{
+	btnode_t *ptr;
 
 	/* special cases */
 	if (pos == 0) {
@@ -38,7 +39,7 @@ btec bt_insert(btnode *node, btnode *parent, int pos) {
 
 	/* can't find the right position, return error */
 	if (ptr == NULL)
-		return BT_INDEX_ERROR;
+		return -BE_INVAL;
 
 	/* insert node */
 	if (pos < 0)
@@ -51,49 +52,63 @@ btec bt_insert(btnode *node, btnode *parent, int pos) {
 	return 0;
 }
 
-btnode *__bt_nth_child(btnode *parent, int pos) {
-	btnode *ptr;
+btnode_t *bt_remove(btnode_t *parent, int pos)
+{
+	btnode_t *ptr;
+
+	ptr = __bt_nth_child(parent, pos);
+
+	if (ptr == NULL)
+		return NULL;
+
+	bl_del_init(&(ptr->siblings));
+	return ptr;
+}
+
+btnode_t *__bt_nth_child(btnode_t *parent, int pos)
+{
+	btnode_t *ptr;
 	int i = 0;
 
-	if (pos < 0) {
+	if (pos < 0)
 		bl_for_each_entry_reverse(ptr, &(parent->children), siblings) {
 			i--;
 			if (i == pos)
 				return ptr;
 		}
-	} else {
+	else
 		bl_for_each_entry(ptr, &(parent->children), siblings) {
 			if (i == pos)
 				return ptr;
 			i++;
 		}
-	}
 
 	/* if pos is out of bound, return NULL */
 	return NULL;
 }
 
-int __bt_num_nodes(btnode *node) {
-	btnode *ptr;
+int __bt_num_nodes(btnode_t *node)
+{
+	btnode_t *ptr;
 	int num = 1;
 
 	if (bt_is_leaf(node))
 		return 1;
 
 	/* count nodes recursively */
-	bl_for_each_entry(ptr, &(node->children), siblings) {
+	bl_for_each_entry(ptr, &(node->children), siblings)
 		num += __bt_num_nodes(ptr);
-	}
 	return num;
 }
 
-int __bt_height(btnode *node) {
-	btnode *ptr;
-	int max_height = 1;
+int __bt_height(btnode_t *node)
+{
+	btnode_t *ptr;
+	int max_height = 0;
 	int height;
 
 	if (bt_is_leaf(node))
-		return 1;
+		return 0;
 
 	bl_for_each_entry(ptr, &(node->children), siblings) {
 		height = __bt_height(ptr);
@@ -103,99 +118,79 @@ int __bt_height(btnode *node) {
 	return max_height+1;
 }
 
-void __bt_destroy_tree(btnode *node, bt_data_clean_func func, bt_data_clean_args args) {
-	btnode *ptr;
-	btnode *temp;
+void __bt_destroy_tree(btnode_t *node, bt_data_clean_func func, bt_data_clean_args args)
+{
+	btnode_t *ptr;
+	btnode_t *temp;
 
-	bl_for_each_entry_safe(ptr, temp, &(node->children), siblings) {
+	bl_for_each_entry_safe(ptr, temp, &(node->children), siblings)
 		__bt_destroy_tree(ptr, func, args);
-	}
+
 	bt_destroy(node, func, args);
 }
 
-int __bt_traverse_dfs(btnode *node, int depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
-	/* TODO: btinfo is not implemented yet, currently inserting NULL */
-
-	btnode *ptr, *n;
-	btinfo node_info;
-
-	if (depth == 0)
-		return 0;
+int __bt_traverse_dfs(btnode_t *node, int depth,
+		bttf meet_func, btta meet_args, bttf done_func, btta done_args)
+{
+	btnode_t *ptr, *n;
 
 	if (node == NULL)
 		return 0;
 
-	if (bl_empty(&node->children))
-		node_info.is_leaf = 1;
-	else
-		node_info.is_leaf = 0;
-
 	if (meet_func != NULL)
-		if (meet_func(node->data, meet_args, &node_info))
+		if (meet_func(node, meet_args))
 			return 1;
 
-	bl_for_each_entry_safe(ptr, n, &(node->children), siblings) {
-		if (__bt_traverse_dfs(ptr, depth-1, meet_func, meet_args, done_func, done_args))
-			return 1;
-	}
+	if (depth == 0)
+		goto done;
 
+	bl_for_each_entry_safe(ptr, n, &(node->children), siblings)
+		if (__bt_traverse_dfs(ptr, depth-1,
+				meet_func, meet_args, done_func, done_args))
+			return 1;
+
+done:
 	if (done_func != NULL)
-		if(done_func(node->data, done_args, &node_info))
+		if(done_func(node, done_args))
 			return 1;
 
 	return 0;
 }
 
-void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_args, bttf done_func, btta done_args) {
-	/* TODO: btinfo is not implemented yet, currently inserting NULL */
-
-	btnode *current, *ptr, *n;
+void __bt_traverse_bfs(btnode_t *root, int max_depth,
+		bttf meet_func, btta meet_args, bttf done_func, btta done_args)
+{
+	btnode_t *current, *ptr, *n;
 	int cur_nodes = 0, next_nodes = 0;
 	struct bq_queue queue;
 	int depth = 0;
-	btinfo node_info;
 
 	if (root == NULL)
 		return;
 
-	if (max_depth == 0)
-		return;
-
 	bq_init(&queue);
 
-	if (meet_func != NULL) {
-		if (bl_empty(&root->children))
-			node_info.is_leaf = 1;
-		else
-			node_info.is_leaf = 0;
-
-		if (meet_func(root->data, meet_args, &node_info))
+	if (meet_func != NULL)
+		if (meet_func(root, meet_args))
 			goto ret;
-	}
 
-	bq_push((void *)root, &queue);
+	bq_in((void *)root, &queue);
 	cur_nodes = 1;
-	depth = 1;
+	depth = 0;
 
 	while (!bq_is_empty(&queue)) {
-		current = (btnode *)bq_pop(&queue);
+		current = (btnode_t *)bq_out(&queue);
 		cur_nodes--;
 
 		if (depth == max_depth)
 			goto done;
 
 		bl_for_each_entry_safe(ptr, n, &(current->children), siblings) {
-			if (meet_func != NULL) {
-				if (bl_empty(&ptr->children))
-					node_info.is_leaf = 1;
-				else
-					node_info.is_leaf = 0;
-
-				if (meet_func(ptr->data, meet_args, &node_info))
+			if (meet_func != NULL)
+				if (meet_func(ptr, meet_args))
 					goto ret;
-			}
 
-			bq_push((void *)ptr, &queue);
+			bq_in((void *)ptr, &queue);
 			next_nodes++;
 		}
 
@@ -205,21 +200,13 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 			next_nodes = 0;
 		}
 
-		done:
-
-		if (done_func != NULL) {
-			if (bl_empty(&current->children))
-					node_info.is_leaf = 1;
-				else
-					node_info.is_leaf = 0;
-
-			if (done_func(current->data, done_args, &node_info))
+done:
+		if (done_func != NULL)
+			if (done_func(current, done_args))
 				goto ret;
-		}
 	}
 
-	ret:
-
+ret:
 	bq_destroy(&queue, NULL, NULL);
 }
 
@@ -233,4 +220,3 @@ void __bt_traverse_bfs(btnode *root, int max_depth, bttf meet_func, btta meet_ar
 #undef btdca
 #undef btdcf
 #undef btto
-#undef btec

@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <basic.h>
 #include <basic_list.h>
 
 #define BUILD_LIST(l)	\
@@ -39,12 +40,13 @@ struct entry {
 	struct bl_head ptrs;
 };
 
-static inline void assert_list(const struct bl_head *head, int *array) {
+static inline void assert_list(const struct bl_head *head, int *array)
+{
 	int i = 0;
 	struct bl_head *ptr = head->next;
 
 	while (ptr != head) {
-		assert_int_equal(array[i], CONTAINER_OF(ptr, struct entry, ptrs)->num);
+		assert_int_equal(array[i], container_of(ptr, struct entry, ptrs)->num);
 		i++;
 		ptr = ptr->next;
 	}
@@ -52,13 +54,14 @@ static inline void assert_list(const struct bl_head *head, int *array) {
 	i--;
 	ptr = head->prev;
 	while (ptr != head) {
-		assert_int_equal(array[i], CONTAINER_OF(ptr, struct entry, ptrs)->num);
+		assert_int_equal(array[i], container_of(ptr, struct entry, ptrs)->num);
 		i--;
 		ptr = ptr->prev;
 	}
 }
 
-static void test_initiation(void **state) {
+static void test_initiation(void **state)
+{
 	// test BL_HEAD
 	BL_HEAD(l1);
 	assert_int_equal(&l1, l1.next);
@@ -76,7 +79,8 @@ static void test_initiation(void **state) {
 	assert_int_equal(&l3, l3.prev);
 }
 
-static void test_basic_operations(void **state) {
+static void test_basic_operations(void **state)
+{
 	// test bl_add, bl_add_tail, bl_add_after
 	BUILD_LIST(l);
 	int array1[4] = {1, 2, 3, 4};
@@ -95,7 +99,8 @@ static void test_basic_operations(void **state) {
 	assert_int_equal(&entry4.ptrs, entry4.ptrs.prev);
 }
 
-static void test_advanced_operations(void **state) {
+static void test_advanced_operations(void **state)
+{
 	// test bl_rotate_left, bl_rotate_right
 	BUILD_LIST(l);
 	bl_rotate_left(&l);
@@ -125,7 +130,8 @@ static void test_advanced_operations(void **state) {
 	assert_list(&l, array7);
 }
 
-static void test_macros(void **state) {
+static void test_macros(void **state)
+{
 	BUILD_LIST(l);
 
 	struct bl_head *pos;
@@ -135,10 +141,10 @@ static void test_macros(void **state) {
 	// test bl_for_each, bl_for_each_prev
 	bl_for_each(pos, &l) {
 		i++;
-		assert_int_equal(i, CONTAINER_OF(pos, struct entry, ptrs)->num);
+		assert_int_equal(i, container_of(pos, struct entry, ptrs)->num);
 	}
 	bl_for_each_prev(pos, &l) {
-		assert_int_equal(i, CONTAINER_OF(pos, struct entry, ptrs)->num);
+		assert_int_equal(i, container_of(pos, struct entry, ptrs)->num);
 		i--;
 	}
 
@@ -182,7 +188,8 @@ static void test_macros(void **state) {
 	}
 }
 
-int main(void) {
+int main(void)
+{
 	const UnitTest tests[] = {
 		unit_test(test_initiation),
 		unit_test(test_basic_operations),
